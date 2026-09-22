@@ -65,23 +65,24 @@ def _coverage_result(root: Path, target: str, coverage_path: Path) -> dict[str, 
     try:
         data = json.loads(coverage_path.read_text(encoding="utf-8"))
         total = float(data["totals"]["percent_covered"])
-        prior = None
-        for path in sorted((root / "evidence").glob("*/*/manifest.json"), reverse=True):
+        candidates: list[tuple[int, dict]] = []
+        for path in (root / "evidence").glob("*/*/manifest.json"):
             candidate = json.loads(path.read_text(encoding="utf-8"))
             commit = candidate.get("target_commit")
             if (
-                commit != target
-                and subprocess.run(
+                commit == target
+                or subprocess.run(
                     ["git", "merge-base", "--is-ancestor", str(commit), target],
                     cwd=root,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                     check=False,
                 ).returncode
-                == 0
             ):
-                prior = candidate
-                break
+                continue
+            distance = int(git(root, "rev-list", "--count", f"{commit}..{target}"))
+            candidates.append((distance, candidate))
+        prior = min(candidates, key=lambda value: value[0])[1] if candidates else None
         base = (
             prior["target_commit"] if prior else git(root, "hash-object", "-t", "tree", "/dev/null")
         )
