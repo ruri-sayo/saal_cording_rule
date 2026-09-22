@@ -1,4 +1,5 @@
 .saal/artifacts/
+.saal/packages/
 .coverage
 .pytest_cache/
 __pycache__/
