@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://saal.local/schemas/evidence-manifest-v1.json",
+  "type": "object",
+  "required": ["schema_version", "saal_rules_version", "saalco_version", "target_commit", "run_id", "executed_at", "environment", "lockfile", "gates", "tests", "coverage", "artifacts"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "target_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "gates": {"type": "array"},
+    "tests": {"type": "array"},
+    "coverage": {"type": "object"},
+    "artifacts": {"type": "array"}
+  }
+}

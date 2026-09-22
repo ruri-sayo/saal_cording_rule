@@ -1,0 +1,9 @@
+F-001	-	2026-09-22T17:46:47+09:00	SAALCO v1.0 CLI
+REQ-0001	F-001	2026-09-22T17:46:48+09:00	Operate the SAAL development lifecycle locally
+AD-0001	F-001	2026-09-22T17:46:48+09:00	Separate CLI, documents, trace, checks, and evidence
+DD-0001	F-001	2026-09-22T17:46:48+09:00	Implement deterministic document and verification services
+MD-0001	F-001	2026-09-22T17:46:48+09:00	SAALCO Python package modules
+UT-0001	F-001	2026-09-22T17:46:48+09:00	Core document and ID unit tests
+IT-0001	F-001	2026-09-22T17:46:48+09:00	CLI workflow integration test
+ST-0001	F-001	2026-09-22T17:46:48+09:00	Installed CLI end-to-end workflow
+DEV-0001	F-001	2026-09-22T17:46:48+09:00	Initial migration tests are implementation-aware
