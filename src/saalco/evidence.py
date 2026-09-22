@@ -112,13 +112,14 @@ def _coverage_result(root: Path, target: str, coverage_path: Path) -> dict[str, 
             100.0 if not changed else ((covered / measurable * 100) if measurable else None)
         )
         previous_total = prior.get("coverage", {}).get("total") if prior else None
+        rounded_total = round(total, 2)
         passed = (
             diff_percent is not None
             and diff_percent >= 80
-            and (previous_total is None or total >= float(previous_total))
+            and (previous_total is None or rounded_total >= float(previous_total))
         )
         result.update(
-            total=round(total, 2),
+            total=rounded_total,
             diff=round(diff_percent, 2) if diff_percent is not None else None,
             diff_base_commit=prior["target_commit"] if prior else None,
             status="PASS" if passed else "FAIL",
