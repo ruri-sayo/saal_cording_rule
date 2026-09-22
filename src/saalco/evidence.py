@@ -20,12 +20,12 @@ def _sha(path: Path) -> str:
 
 
 def current_manifest(root: Path) -> dict | None:
-    manifests = sorted((root / "evidence").glob("*/*/manifest.json"), reverse=True)
     try:
         head = git(root, "rev-parse", "HEAD")
     except SaalcoError:
         return None
-    for path in manifests:
+    candidates: list[tuple[int, dict]] = []
+    for path in (root / "evidence").glob("*/*/manifest.json"):
         try:
             tracked = subprocess.run(
                 ["git", "ls-files", "--error-unmatch", str(path.relative_to(root))],
@@ -49,10 +49,11 @@ def current_manifest(root: Path) -> dict | None:
                 for p in changed
             )
             if allowed:
-                return data
+                distance = int(git(root, "rev-list", "--count", f"{target}..{head}"))
+                candidates.append((distance, data))
         except (OSError, KeyError, json.JSONDecodeError):
             continue
-    return None
+    return min(candidates, key=lambda value: value[0])[1] if candidates else None
 
 
 def _coverage_result(root: Path, target: str, coverage_path: Path) -> dict[str, object]:
