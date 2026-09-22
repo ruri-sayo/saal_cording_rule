@@ -1,0 +1,191 @@
+{
+  "schema_version": "1.0",
+  "saal_rules_version": "1.0",
+  "saalco_version": "1.0.0",
+  "target_commit": "3915f60ed6c8cff28fd260aa5aa72f584398fa06",
+  "run_id": "20260922T180244",
+  "executed_at": "2026-09-22T18:02:47+09:00",
+  "environment": {
+    "os": "Darwin",
+    "python": "3.14.5",
+    "arch": "arm64"
+  },
+  "lockfile": {
+    "path": "uv.lock",
+    "sha256": "335d78cbbe955d7c401186dcc8a0ea2857a06743c2513f1a21a592236d87bc8b"
+  },
+  "gates": [
+    {
+      "name": "format",
+      "command": "uv run ruff format --check .",
+      "started_at": "2026-09-22T18:02:44+09:00",
+      "ended_at": "2026-09-22T18:02:44+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": null
+    },
+    {
+      "name": "lint",
+      "command": "uv run ruff check .",
+      "started_at": "2026-09-22T18:02:44+09:00",
+      "ended_at": "2026-09-22T18:02:44+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": null
+    },
+    {
+      "name": "typecheck",
+      "command": "uv run mypy src",
+      "started_at": "2026-09-22T18:02:44+09:00",
+      "ended_at": "2026-09-22T18:02:44+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": null
+    },
+    {
+      "name": "secret_scan",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "dependency_audit",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "static_analysis",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "saalco-check",
+      "command": "saalco check",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": 1,
+      "result": "FAIL",
+      "tool_version": "1.0.0"
+    },
+    {
+      "name": "test.unit",
+      "command": "uv run pytest tests/unit --cov=src --cov-context=test -p no:cacheprovider",
+      "started_at": "2026-09-22T18:02:44+09:00",
+      "ended_at": "2026-09-22T18:02:45+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": null
+    },
+    {
+      "name": "test.integration",
+      "command": "uv run pytest tests/integration --cov=src --cov-context=test --cov-append -p no:cacheprovider",
+      "started_at": "2026-09-22T18:02:45+09:00",
+      "ended_at": "2026-09-22T18:02:46+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": null
+    },
+    {
+      "name": "test.e2e",
+      "command": "uv run pytest tests/e2e --cov=src --cov-context=test --cov-append -p no:cacheprovider",
+      "started_at": "2026-09-22T18:02:46+09:00",
+      "ended_at": "2026-09-22T18:02:46+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": null
+    }
+  ],
+  "tests": [
+    {
+      "nodeid": "tests/e2e/test_workflow.py::test_installed_cli_workflow",
+      "category": "e2e",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_new_and_approval_hash",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_serialize_and_hash",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_ledger_allocation_never_reuses",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    }
+  ],
+  "coverage": {
+    "total": 11.12,
+    "diff": 100.0,
+    "diff_base_commit": "1522cbf463da644fa8826f51ec6903440c313f58",
+    "status": "PASS"
+  },
+  "artifacts": [
+    {
+      "path": ".saal/artifacts/3915f60ed6c8cff28fd260aa5aa72f584398fa06/20260922T180244/coverage.data",
+      "sha256": "6e878bdaa2e2740990c3df170b2afd46065e15e65dbbbaea84c94da7154267ee",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3915f60ed6c8cff28fd260aa5aa72f584398fa06/20260922T180244/coverage.json",
+      "sha256": "1d825b2266c985184498c987129e8fc677cb8575a80439fb063cf131f763f549",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3915f60ed6c8cff28fd260aa5aa72f584398fa06/20260922T180244/gate-format.log",
+      "sha256": "ff581aaa8f1b2a77e28a682a7cae7b738f926730737e49664d06c810bcd5aa03",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3915f60ed6c8cff28fd260aa5aa72f584398fa06/20260922T180244/gate-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3915f60ed6c8cff28fd260aa5aa72f584398fa06/20260922T180244/gate-typecheck.log",
+      "sha256": "8f3f4c0ebcb835e848682f2c6610a1bf32c86a993bdb626d9ff36e3a49408398",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3915f60ed6c8cff28fd260aa5aa72f584398fa06/20260922T180244/test-e2e.log",
+      "sha256": "5faa43755589278c44ab5c82a5490205607ed9e602de2eceded592501aa6916f",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3915f60ed6c8cff28fd260aa5aa72f584398fa06/20260922T180244/test-integration.log",
+      "sha256": "a5008a2da45414afddf58ebafb3190db5dc0820b4a91ab109cb6522cbb30882f",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3915f60ed6c8cff28fd260aa5aa72f584398fa06/20260922T180244/test-unit.log",
+      "sha256": "07f4226ce5deb521b06b7f6a5dd0aea1344d34b51b355da4439e9101819f0e19",
+      "retention_location": ".saal/artifacts"
+    }
+  ]
+}
