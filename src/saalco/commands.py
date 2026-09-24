@@ -114,12 +114,16 @@ def init_project(
             shutil.copyfile(source, dest)
             created.append(str(dest.relative_to(root)))
     gitignore = root / ".gitignore"
+    required_lines = [".saal/", "__pycache__/", "*.py[cod]", ".venv/", "*.egg-info/", ".coverage"]
     if gitignore.exists():
         content = gitignore.read_text(encoding="utf-8")
-        if ".saal/" not in content:
-            gitignore.write_text(content.rstrip() + "\n.saal/\n", encoding="utf-8")
+        missing = [line for line in required_lines if line not in content]
+        if missing:
+            gitignore.write_text(
+                content.rstrip() + "\n" + "\n".join(missing) + "\n", encoding="utf-8"
+            )
     else:
-        gitignore.write_text(".saal/\n", encoding="utf-8")
+        gitignore.write_text("\n".join(required_lines) + "\n", encoding="utf-8")
         created.append(".gitignore")
     if not (root / ".git").exists():
         try:
@@ -177,7 +181,12 @@ def new_feature(root: Path, title: str, tier: str, slug: str | None) -> str:
         )
     ident = allocate(root, "F", "-", title)
     folder = root / "docs/features" / f"{ident}_{slug}"
-    folder.mkdir(parents=True)
+    try:
+        folder.mkdir(parents=True)
+    except FileExistsError as exc:
+        raise SaalcoError(
+            f"ERROR {folder}: directory already exists; use `saalco new item` to add to this feature."
+        ) from exc
     ptype = config(root)["type"]
     for name in TIER_FILES[tier]:
         path = folder / name
@@ -211,7 +220,10 @@ def new_item(root: Path, kind: str, feature: str, title: str) -> tuple[str, str 
         raise SaalcoError(f"ERROR unsupported item kind {kind}.")
     matches = list((root / "docs/features").glob(f"{feature}_*"))
     if len(matches) != 1:
-        raise SaalcoError(f"ERROR {feature}: feature not found or ambiguous.")
+        raise SaalcoError(
+            f"ERROR {feature}: feature not found or ambiguous. "
+            "Check `docs/features/` or create it with `saalco new feature`."
+        )
     ident = allocate(root, kind, feature, title)
     path = matches[0] / FILE_FOR_KIND[kind]
     if not path.exists():

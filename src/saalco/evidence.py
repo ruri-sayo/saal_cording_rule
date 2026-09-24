@@ -344,7 +344,8 @@ def _run(
     Returns:
         (exit_code, result, started_at, ended_at). `result` is "PASS" (exit 0), "FAIL"
         (non-zero exit), or "ERROR" (the executable could not be found/launched — exit_code
-        127 in that case).
+        127 in that case). Note: a missing tool *inside* `uv run` (e.g. pytest not installed)
+        surfaces as FAIL, not ERROR — a known v1.0 simplification (non-PASS either way).
 
     Side Effects:
         Runs `command` as a subprocess; writes `log`.
@@ -839,6 +840,7 @@ def package(root: Path, feature: str) -> Path:
     )
 
     def link(rel: str | None) -> str:
+        """Format a manifest or artifact path as a markdown list item with relative link."""
         return f"- [{rel}](../../../{rel})" if rel else "- (missing)"
 
     lines = [f"# Evidence Package {feature}", "", "## Requirements", link(requirements_rel), ""]

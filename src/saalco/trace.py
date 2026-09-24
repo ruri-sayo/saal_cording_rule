@@ -128,6 +128,7 @@ def generate(root: Path, write: bool = True) -> list[dict[str, str]]:
                 test_results=results,
                 target_commit=target,
             ) -> bool:
+                """Check if an item's verification requirement (test/review/static) is satisfied."""
                 item = next(x for x in all_items if x.id == item_id)
                 verify = item.meta.get("verify", "test")
                 if verify == "review":

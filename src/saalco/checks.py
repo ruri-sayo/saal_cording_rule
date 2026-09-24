@@ -16,7 +16,7 @@ Non-responsibilities:
     - Does not write any files or mutate the working tree — `saalco check` is read-only
       (contract 4: it calls `trace.generate(root, write=False)`).
 
-DEV downgrade rule numbers implemented (see `_dev_downgrade`): 6.4, 6.8, 7.3, 13.5.
+DEV downgrade rule numbers implemented (see `_dev_downgrade`): 6.4, 6.8, 7.1, 7.3, 13.5.
 """
 
 from __future__ import annotations
@@ -55,6 +55,7 @@ _CATEGORY_EXPECTED_KIND = {"unit": {"DD", "MD"}, "integration": {"AD"}, "e2e": {
 
 #: verify: static-only category the RTM/coverage-diff DEV exceptions apply to.
 _DEV_RULE_COVERAGE = "7.3"
+_DEV_RULE_GATE = "7.1"
 _DEV_RULE_RTM = "6.8"
 _DEV_RULE_UNAPPROVED_DESIGN = "13.5"
 _DEV_RULE_VERIFIES_NOT_PASS = "6.4"
@@ -150,6 +151,7 @@ def _find_cycles(edges: dict[str, list[str]], report: Report) -> None:
     reported: set[frozenset[str]] = set()
 
     def visit(node: str, path: list[str]) -> None:
+        """Recursively traverse the graph and detect cycles via DFS."""
         if node in on_stack:
             idx = path.index(node)
             cycle = frozenset(path[idx:])
@@ -194,8 +196,8 @@ def _dev_downgrade(
     any open DEV with a matching `rule` applies regardless of its `scope` — there is no
     specific candidate to check the scope against.
 
-    Used for rules: 6.4 (verifies test not PASS), 6.8 (RTM not-verified), 7.3 (coverage),
-    13.5 (unapproved design / contexts unavailable).
+    Used for rules: 6.4 (verifies test not PASS), 6.8 (RTM not-verified), 7.1 (gate FAIL/ERROR),
+    7.3 (coverage), 13.5 (unapproved design / contexts unavailable).
 
     Args:
         devs: all DEV items (not pre-filtered by status).
@@ -369,12 +371,9 @@ def run(root: Path, verification: bool = False) -> Report:
     for ident in documented - set(ledger_ids):
         report.errors.append(f"{ident}: documented ID is missing from docs/ids.ledger")
     for ident in set(ledger_ids) - documented:
-        # §9: ledger rows are append-only and are never deleted when an ID is retired from
-        # its document, so a ledger-only ID is the expected steady state, not necessarily a
-        # real inconsistency. Downgraded to WARNING (open question — see task report).
-        report.warnings.append(
-            f"docs/ids.ledger: {ident} has no corresponding document item (retired or missing ID)"
-        )
+        # §9: ledger/document mismatch is an ERROR. Retiring IDs has no mechanism in v1.0
+        # (open question recorded in implementation notes).
+        report.errors.append(f"docs/ids.ledger: {ident} has no corresponding document item")
 
     for meta in (d for d in docs if d.path.name == "00-meta.md"):
         tier = meta.header.get("tier")
@@ -477,9 +476,11 @@ def run(root: Path, verification: bool = False) -> Report:
                         report.errors.append(message)
             for gate_entry in _as_dicts(manifest.get("gates")):
                 if gate_entry.get("result") in {"FAIL", "ERROR"}:
-                    report.errors.append(
-                        f"gate {gate_entry.get('name')}: result is {gate_entry.get('result')}"
-                    )
+                    message = f"gate {gate_entry.get('name')}: result is {gate_entry.get('result')}"
+                    if _dev_downgrade(dev_items, _DEV_RULE_GATE):
+                        report.warnings.append(message + "; covered by an open DEV")
+                    else:
+                        report.errors.append(message)
             cov = manifest.get("coverage")
             cov = cov if isinstance(cov, dict) else {}
             if cov.get("status") not in {"PASS"}:

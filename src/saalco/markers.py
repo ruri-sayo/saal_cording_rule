@@ -117,6 +117,7 @@ def _marks_from_assign(
 def _is_test_function(
     node: ast.stmt,
 ) -> TypeGuard[ast.FunctionDef | ast.AsyncFunctionDef]:
+    """Check if an AST node is a test function (function/async function starting with 'test')."""
     return isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith(
         "test"
     )
@@ -135,7 +136,9 @@ def scan_tests(root: Path) -> list[TestMarker]:
     is treated as `impl_aware` with no reference (unmarked tests, per spec §8.4).
 
     Args:
-        root: project root; files are read from `root / "tests"`.
+        root: project root; files are read from `root / "tests"`. Anything under
+            `tests/fixtures/` is sample data, not a test of this project, and is skipped so
+            that fixture markers can never count toward verification.
 
     Returns:
         One `TestMarker` per (test, applicable marker) pair. A test decorated with several
@@ -152,6 +155,8 @@ def scan_tests(root: Path) -> list[TestMarker]:
     if not tests.exists():
         return result
     for path in sorted(tests.rglob("test_*.py")):
+        if "fixtures" in path.relative_to(tests).parts:
+            continue
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except (OSError, SyntaxError):
