@@ -44,6 +44,11 @@ def discover(start: Path | None = None) -> Path:
     raise SaalcoError(f"ERROR {here}: not inside a SAALCO project. Run `saalco init`.")
 
 
+#: Rule versions this SAALCO can operate. 1.1 only adds the language rule (Rule 11.5),
+#: which SAALCO does not enforce, so both versions are checked identically.
+SUPPORTED_RULES_VERSIONS = ("1.0", "1.1")
+
+
 def config(root: Path) -> dict[str, str]:
     """Read and validate project configuration.
 
@@ -54,13 +59,15 @@ def config(root: Path) -> dict[str, str]:
         Dictionary of configuration key-value pairs from docs/project.md header.
 
     Raises:
-        SaalcoError: If saal_rules_version is not '1.0'.
+        SaalcoError: If saal_rules_version is not one of SUPPORTED_RULES_VERSIONS.
     """
     doc = parse_document(root / "docs" / "project.md")
     version = doc.header.get("saal_rules_version")
-    if version != "1.0":
+    if version not in SUPPORTED_RULES_VERSIONS:
+        expected = ", ".join(SUPPORTED_RULES_VERSIONS)
         raise SaalcoError(
-            f"ERROR docs/project.md: unsupported saal_rules_version {version!r}; expected '1.0'."
+            f"ERROR docs/project.md: unsupported saal_rules_version {version!r}; "
+            f"expected one of {expected}."
         )
     return doc.header
 

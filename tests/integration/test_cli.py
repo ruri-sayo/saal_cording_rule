@@ -361,7 +361,7 @@ def test_check_verification_coverage_fail_downgraded_by_matching_open_dev(
     saal_project, write_manifest_fn, write_coverage_fn, head_commit
 ):
     """coverage_failure fixture ships an open DEV-0001 (rule 7.3, scope F-001): the coverage
-    FAIL becomes a WARNING instead of an ERROR (Rule 13.5/§8.6 downgrade)."""
+    FAIL becomes a WARNING instead of an ERROR (§8.6 DEV-downgrade mechanism)."""
     root = saal_project("coverage_failure")
     target = head_commit(root)
     json_path = write_coverage_fn(

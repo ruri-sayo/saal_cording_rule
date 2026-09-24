@@ -113,7 +113,7 @@ kind: PROJECT
 name: {name}
 type: {project_type}
 language: {language}
-saal_rules_version: 1.0
+saal_rules_version: 1.1
 saalco_version: 1.0.0
 raw_evidence_location: .saal/artifacts
 raw_evidence_retention: until next release

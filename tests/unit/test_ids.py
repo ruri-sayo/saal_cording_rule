@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from saalco.errors import SaalcoError
-from saalco.ids import allocate, lock, read_ledger
+from saalco.ids import LedgerRow, allocate, lock, read_ledger
 
 pytestmark = pytest.mark.impl_aware
 
@@ -26,7 +26,8 @@ def test_allocate_increments_per_kind(tmp_path: Path):
     assert allocate(root, "REQ", "F-001", "req one") == "REQ-0001"
     assert allocate(root, "REQ", "F-001", "req two") == "REQ-0002"
     rows = read_ledger(root)
-    assert [r[0] for r in rows] == ["F-001", "F-002", "REQ-0001", "REQ-0002"]
+    assert [r.id for r in rows] == ["F-001", "F-002", "REQ-0001", "REQ-0002"]
+    assert all(r.status == "active" for r in rows)
 
 
 def test_allocate_never_reuses_id_after_deletion_from_documents(tmp_path: Path):
@@ -54,7 +55,16 @@ def test_read_ledger_missing_file_returns_empty(tmp_path: Path):
 def test_read_ledger_rejects_wrong_field_count(tmp_path: Path):
     root = _init(tmp_path)
     (root / "docs/ids.ledger").write_text("REQ-0001\tF-001\tonly-three\n")
-    with pytest.raises(SaalcoError, match="four tab-separated fields"):
+    with pytest.raises(SaalcoError, match="tab-separated fields"):
+        read_ledger(root)
+
+
+def test_read_ledger_rejects_too_many_fields(tmp_path: Path):
+    root = _init(tmp_path)
+    (root / "docs/ids.ledger").write_text(
+        "REQ-0001\tF-001\tstamp\ttitle\tactive\treason\tREQ-0002\textra\n"
+    )
+    with pytest.raises(SaalcoError, match="tab-separated fields"):
         read_ledger(root)
 
 
@@ -63,6 +73,61 @@ def test_read_ledger_rejects_invalid_id_format(tmp_path: Path):
     (root / "docs/ids.ledger").write_text("bad-id\tF-001\tstamp\ttitle\n")
     with pytest.raises(SaalcoError, match="invalid ID format"):
         read_ledger(root)
+
+
+def test_read_ledger_legacy_four_field_row_is_active(tmp_path: Path):
+    """A legacy 4-field row (no status column) behaves exactly as before: status 'active'."""
+    root = _init(tmp_path)
+    (root / "docs/ids.ledger").write_text("REQ-0001\tF-001\tstamp\ttitle\n")
+    rows = read_ledger(root)
+    assert rows == [
+        LedgerRow(id="REQ-0001", feature="F-001", allocated_at="stamp", title="title", line=1)
+    ]
+    assert rows[0].status == "active"
+    assert rows[0].reason == ""
+    assert rows[0].superseded_by == ""
+
+
+def test_read_ledger_empty_status_field_is_active(tmp_path: Path):
+    root = _init(tmp_path)
+    (root / "docs/ids.ledger").write_text("REQ-0001\tF-001\tstamp\ttitle\t\n")
+    assert read_ledger(root)[0].status == "active"
+
+
+def test_read_ledger_retired_row_with_reason_and_superseded_by(tmp_path: Path):
+    root = _init(tmp_path)
+    (root / "docs/ids.ledger").write_text(
+        "REQ-0001\tF-001\tstamp\ttitle\tretired\tsplit into two\tREQ-0002\n"
+    )
+    row = read_ledger(root)[0]
+    assert row.status == "retired"
+    assert row.reason == "split into two"
+    assert row.superseded_by == "REQ-0002"
+
+
+def test_read_ledger_rejects_invalid_status(tmp_path: Path):
+    root = _init(tmp_path)
+    (root / "docs/ids.ledger").write_text("REQ-0001\tF-001\tstamp\ttitle\tarchived\n")
+    with pytest.raises(SaalcoError, match="invalid ledger status"):
+        read_ledger(root)
+
+
+def test_allocate_sanitizes_tabs_in_title(tmp_path: Path):
+    root = _init(tmp_path)
+    allocate(root, "REQ", "F-001", "title\twith\ttabs")
+    row = read_ledger(root)[0]
+    assert row.title == "title with tabs"
+    assert "\t" not in row.title
+
+
+def test_allocate_never_reuses_a_retired_number(tmp_path: Path):
+    """Retired rows still count toward the max when computing the next number (spec §9)."""
+    root = _init(tmp_path)
+    (root / "docs/ids.ledger").write_text(
+        "REQ-0001\tF-001\tstamp\tone\tactive\n"
+        "REQ-0002\tF-001\tstamp\ttwo\tretired\tsuperseded\tREQ-0003\n"
+    )
+    assert allocate(root, "REQ", "F-001", "three") == "REQ-0003"
 
 
 def test_lock_contention_raises(tmp_path: Path):

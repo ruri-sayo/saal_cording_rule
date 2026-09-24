@@ -16,11 +16,12 @@ Non-responsibilities:
     - Does not write any files or mutate the working tree — `saalco check` is read-only
       (contract 4: it calls `trace.generate(root, write=False)`).
 
-DEV downgrade rule numbers implemented (see `_dev_downgrade`): 6.4, 6.8, 7.1, 7.3, 13.5.
+DEV downgrade rule numbers implemented (see `_dev_downgrade`): 4.6, 6.4, 6.8, 7.1, 7.3.
 """
 
 from __future__ import annotations
 
+import csv
 import json
 import subprocess
 from dataclasses import dataclass, field
@@ -31,7 +32,7 @@ from .coverage_contexts import load as load_contexts
 from .documents import Document, Item, content_hash, items, parse_document
 from .errors import SaalcoError
 from .evidence import current_manifest
-from .ids import read_ledger
+from .ids import LedgerRow, read_ledger
 from .markers import scan_tests
 from .project import config
 from .templates import TIER_FILES
@@ -57,7 +58,9 @@ _CATEGORY_EXPECTED_KIND = {"unit": {"DD", "MD"}, "integration": {"AD"}, "e2e": {
 _DEV_RULE_COVERAGE = "7.3"
 _DEV_RULE_GATE = "7.1"
 _DEV_RULE_RTM = "6.8"
-_DEV_RULE_UNAPPROVED_DESIGN = "13.5"
+#: Substantive rule this check enforces ("implement according to the approved design");
+#: 13.5 is only the tool-spec list item number, not a rule number.
+_DEV_RULE_UNAPPROVED_DESIGN = "4.6"
 _DEV_RULE_VERIFIES_NOT_PASS = "6.4"
 
 
@@ -184,20 +187,22 @@ def _dev_downgrade(
     item_id: str | None = None,
     file: str | None = None,
 ) -> bool:
-    """Decide whether an open DEV record downgrades an ERROR to WARNING (§8.6, Rule 13.5).
+    """Decide whether an open DEV record downgrades an ERROR to WARNING (§8.6).
 
-    A DEV matches when all of: `status: open`, its `rule` equals `rule` exactly, and its
-    `scope` (comma-separated tokens) matches the violation — a token equals `feature`, equals
-    `item_id`, or is a path prefix of `file` (`file.startswith(token)`). Tokens are compared
-    exactly, never as substrings (`F-001` must not match `F-0012`).
+    A DEV matches when all of: `status: open`, its `rule` (comma-separated rule-number
+    tokens, per §8.6's multi-rule extension — e.g. `rule: 4.6, 6.8, 10.5`) contains `rule`
+    as one of those tokens by exact match, and its `scope` (comma-separated tokens) matches
+    the violation — a token equals `feature`, equals `item_id`, or is a path prefix of `file`
+    (`file.startswith(token)`). Both `rule` and `scope` tokens are compared exactly, never as
+    substrings (`F-001` must not match `F-0012`; rule `6.8` must not match `6.81`).
 
     When `feature`, `item_id`, and `file` are all None (used for project-wide findings with
     no single owning item, e.g. overall coverage status or "coverage contexts unavailable"),
     any open DEV with a matching `rule` applies regardless of its `scope` — there is no
     specific candidate to check the scope against.
 
-    Used for rules: 6.4 (verifies test not PASS), 6.8 (RTM not-verified), 7.1 (gate FAIL/ERROR),
-    7.3 (coverage), 13.5 (unapproved design / contexts unavailable).
+    Used for rules: 4.6 (unapproved design / contexts unavailable), 6.4 (verifies test not
+    PASS), 6.8 (RTM not-verified), 7.1 (gate FAIL/ERROR), 7.3 (coverage).
 
     Args:
         devs: all DEV items (not pre-filtered by status).
@@ -213,7 +218,8 @@ def _dev_downgrade(
     for dev in devs:
         if dev.kind != "DEV" or dev.meta.get("status") != "open":
             continue
-        if dev.meta.get("rule") != rule:
+        rule_tokens = [t.strip() for t in dev.meta.get("rule", "").split(",") if t.strip()]
+        if rule not in rule_tokens:
             continue
         if global_check:
             return True
@@ -230,6 +236,95 @@ def _dev_downgrade(
 def _as_dicts(value: object) -> list[dict[str, Any]]:
     """Coerce a manifest field expected to be a list of dicts, tolerating malformed input."""
     return value if isinstance(value, list) else []
+
+
+def _retired_reference_message(where: str, ident: str, retired: dict[str, LedgerRow]) -> str:
+    """Format the standard "<where>: references retired ID <ID>" ERROR (spec §9, item 3).
+
+    Appends " (superseded by <X>)" when the retired row records a `superseded_by` ID.
+    """
+    message = f"{where}: references retired ID {ident}"
+    superseded_by = retired[ident].superseded_by
+    if superseded_by:
+        message += f" (superseded by {superseded_by})"
+    return message
+
+
+def _check_retired_ledger(
+    root: Path, report: Report, ledger_rows: list[LedgerRow], by_id: dict[str, Item]
+) -> tuple[set[str], dict[str, LedgerRow]]:
+    """Validate ledger-level retirement invariants (spec §9, items 2 and 4).
+
+    Checks: (2a) a retired ID must not appear on more than one ledger row; (2b) a retired ID
+    must not still be declared as a document item heading, or (for a retired `F-nnn`) have a
+    matching `docs/features/<F-nnn>_*` directory; (4) `superseded_by`, when set, must name an
+    ID present in the ledger that is not itself retired. Non-retired duplicate ledger IDs are
+    still reported, with the generic "duplicate ID" message.
+
+    Returns:
+        `(retired_ids, retired_by_id)`: the set of retired IDs and a map from a retired ID to
+        its (last-seen) ledger row, for reuse by the reference checks that follow.
+    """
+    retired_by_id = {row.id: row for row in ledger_rows if row.status == "retired"}
+    retired_ids = set(retired_by_id)
+
+    rows_by_id: dict[str, list[LedgerRow]] = {}
+    for row in ledger_rows:
+        rows_by_id.setdefault(row.id, []).append(row)
+    for ident, rows in sorted(rows_by_id.items()):
+        if len(rows) <= 1:
+            continue
+        if ident in retired_ids:
+            report.errors.append(f"docs/ids.ledger: retired ID {ident} reused")
+        else:
+            report.errors.append(f"docs/ids.ledger: duplicate ID {ident}")
+
+    for ident in sorted(retired_ids):
+        if ident in by_id:
+            report.errors.append(f"docs/ids.ledger: retired ID {ident} reused")
+        if ident.startswith("F-") and list((root / "docs/features").glob(f"{ident}_*")):
+            report.errors.append(f"docs/ids.ledger: retired ID {ident} reused")
+
+    ledger_id_set = set(rows_by_id)
+    for row in ledger_rows:
+        if not row.superseded_by:
+            continue
+        if row.superseded_by not in ledger_id_set:
+            report.errors.append(
+                f"docs/ids.ledger:{row.line}: superseded_by {row.superseded_by} is not "
+                "present in the ledger"
+            )
+        elif row.superseded_by in retired_ids:
+            report.errors.append(
+                f"docs/ids.ledger:{row.line}: superseded_by {row.superseded_by} is itself retired"
+            )
+    return retired_ids, retired_by_id
+
+
+def _check_committed_rtm_retired_refs(
+    root: Path, report: Report, retired_ids: set[str], retired_by_id: dict[str, LedgerRow]
+) -> None:
+    """Flag references to retired IDs in the committed `docs/trace/rtm.csv` (spec §9, item 3).
+
+    Reads the file as checked in (not a freshly regenerated RTM): both `req_id` and any ID
+    listed in `design_ids` are checked.
+
+    Side Effects:
+        Reads docs/trace/rtm.csv, if present.
+    """
+    path = root / "docs/trace/rtm.csv"
+    if not path.exists():
+        return
+    with path.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            req_id = row.get("req_id", "")
+            where = f"{path.relative_to(root)} (row {req_id})"
+            if req_id in retired_ids:
+                report.errors.append(_retired_reference_message(where, req_id, retired_by_id))
+            design_ids = [x.strip() for x in (row.get("design_ids") or "").split(",") if x.strip()]
+            for ident in design_ids:
+                if ident in retired_ids:
+                    report.errors.append(_retired_reference_message(where, ident, retired_by_id))
 
 
 def _tracked_src_files(root: Path) -> set[str]:
@@ -267,7 +362,7 @@ def _check_unapproved_design(
     dev_items: list[Item],
     item_feature: dict[str, str],
 ) -> None:
-    """§13-14 / Rule 13.5: implementation reached only by unapproved or stale design.
+    """§13-14 / Rule 4.6: implementation reached only by unapproved or stale design.
 
     Walks impl file -> verifies tests reaching it (via coverage contexts) -> referenced
     DD/MD item -> that item's owning document. If the document is not `status: approved` or
@@ -364,19 +459,19 @@ def run(root: Path, verification: bool = False) -> Report:
             item_list.append(item)
             item_feature[item.id] = doc.header.get("feature", "")
     ledger_rows = read_ledger(root)
-    ledger_ids = [row[0] for row in ledger_rows]
-    if len(ledger_ids) != len(set(ledger_ids)):
-        report.errors.append("docs/ids.ledger: duplicate IDs")
+    ledger_ids = [row.id for row in ledger_rows]
+    retired_ids, retired_by_id = _check_retired_ledger(root, report, ledger_rows, by_id)
     documented = set(by_id)
     documented.update(
         doc.header.get("feature", "") for doc in docs if doc.path.name == "00-meta.md"
     )
     for ident in documented - set(ledger_ids):
         report.errors.append(f"{ident}: documented ID is missing from docs/ids.ledger")
-    for ident in set(ledger_ids) - documented:
-        # §9: ledger/document mismatch is an ERROR. Retiring IDs has no mechanism in v1.0
-        # (open question recorded in implementation notes).
+    for ident in set(ledger_ids) - documented - retired_ids:
+        # §9: a retired ID is excluded from this mismatch check (item 1) — it is expected to
+        # remain in the ledger without a live document item.
         report.errors.append(f"docs/ids.ledger: {ident} has no corresponding document item")
+    _check_committed_rtm_retired_refs(root, report, retired_ids, retired_by_id)
 
     for meta in (d for d in docs if d.path.name == "00-meta.md"):
         tier = meta.header.get("tier")
@@ -392,8 +487,16 @@ def run(root: Path, verification: bool = False) -> Report:
     edges: dict[str, list[str]] = {}
     for item in item_list:
         if item.kind == "DEV":
-            if not item.meta.get("scope"):
+            scope = item.meta.get("scope")
+            if not scope:
                 report.errors.append(f"{item.path.relative_to(root)} {item.id}: scope is required")
+            else:
+                where = f"{item.path.relative_to(root)} {item.id}"
+                for token in (t.strip() for t in scope.split(",")):
+                    if token in retired_ids:
+                        report.errors.append(
+                            _retired_reference_message(where, token, retired_by_id)
+                        )
             continue
         raw = item.meta.get("covers")
         if raw is None or (not raw and item.kind != "REQ"):
@@ -404,7 +507,13 @@ def run(root: Path, verification: bool = False) -> Report:
             report.errors.append(f"{item.path.relative_to(root)} {item.id}: REQ covers must be '-'")
         edges[item.id] = refs
         for ref in refs:
-            if ref not in by_id:
+            if ref in retired_ids:
+                report.errors.append(
+                    _retired_reference_message(
+                        f"{item.path.relative_to(root)} {item.id}", ref, retired_by_id
+                    )
+                )
+            elif ref not in by_id:
                 report.errors.append(
                     f"{item.path.relative_to(root)} {item.id}: unknown covers ID {ref}"
                 )
@@ -428,9 +537,17 @@ def run(root: Path, verification: bool = False) -> Report:
     verified_ids = {m.referenced_id for m in markers if m.marker == "verifies" and m.referenced_id}
     spec_ids = {i.id for i in item_list if i.kind in {"UT", "IT", "ST"}}
     for marker in markers:
-        if marker.referenced_id and marker.referenced_id not in by_id:
+        if marker.referenced_id and marker.referenced_id in retired_ids:
+            report.errors.append(
+                _retired_reference_message(marker.nodeid, marker.referenced_id, retired_by_id)
+            )
+        elif marker.referenced_id and marker.referenced_id not in by_id:
             report.errors.append(f"{marker.nodeid}: verifies unknown ID {marker.referenced_id}")
-        if marker.spec and marker.spec not in spec_ids:
+        if marker.spec and marker.spec in retired_ids:
+            report.errors.append(
+                _retired_reference_message(marker.nodeid, marker.spec, retired_by_id)
+            )
+        elif marker.spec and marker.spec not in spec_ids:
             report.errors.append(
                 f"{marker.nodeid}: verifies spec references unknown ID {marker.spec}"
             )
