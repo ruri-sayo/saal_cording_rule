@@ -44,3 +44,20 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["D"]
+
+[tool.coverage.run]
+# Measure src/ even when exercised only through subprocesses spawned by tests/e2e (real
+# `python -m saalco ...` runs): coverage 7.16's `patch = ["subprocess"]` auto-injects
+# COVERAGE_PROCESS_START into every subprocess this process spawns, recursively, so those
+# runs report back into the same coverage data instead of vanishing (the tests/e2e/ *.py
+# files inject no extra plumbing themselves; this is the only wiring required).
+source = ["src"]
+patch = ["subprocess"]
+relative_files = true
+parallel = true
+
+[tool.coverage.paths]
+source = ["src", "*/src"]
+
+[tool.coverage.report]
+skip_covered = false

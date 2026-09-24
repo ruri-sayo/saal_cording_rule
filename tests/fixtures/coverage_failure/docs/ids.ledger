@@ -1,0 +1,6 @@
+F-001	-	2024-01-01T00:00:00+00:00	Sample feature
+REQ-0001	F-001	2024-01-01T00:00:00+00:00	Do the thing
+DD-0001	F-001	2024-01-01T00:00:00+00:00	Design the thing
+UT-0001	F-001	2024-01-01T00:00:00+00:00	Test the thing
+ST-0001	F-001	2024-01-01T00:00:00+00:00	System test the thing
+DEV-0001	F-001	2024-01-01T00:00:00+00:00	Coverage temporarily below threshold

@@ -36,14 +36,8 @@ COMMON = [
 ]
 TIER_FILES = {
     "S": COMMON,
-    "M": COMMON + ["20-architecture.md", "50-integration-test-spec.md", "60-system-e2e-spec.md"],
-    "L": COMMON
-    + [
-        "20-architecture.md",
-        "35-module-design.md",
-        "50-integration-test-spec.md",
-        "60-system-e2e-spec.md",
-    ],
+    "M": COMMON + ["20-architecture.md", "50-integration-test-spec.md"],
+    "L": COMMON + ["20-architecture.md", "35-module-design.md", "50-integration-test-spec.md"],
 }
 
 KIND_FOR_FILE = {

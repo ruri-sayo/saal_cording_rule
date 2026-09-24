@@ -53,6 +53,7 @@ def parser() -> argparse.ArgumentParser:
     new.add_argument("--feature")
     new.add_argument("--tier", choices=["S", "M", "L"])
     new.add_argument("--slug")
+    new.add_argument("--non-interactive", action="store_true")
     app = subs.add_parser("approve", help="record human approval")
     app.add_argument("paths", nargs="+")
     check = subs.add_parser("check", help="check project conformance")
