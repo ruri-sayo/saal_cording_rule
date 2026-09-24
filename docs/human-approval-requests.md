@@ -20,8 +20,6 @@ SAALCO（エージェント）は、以下のどの文書も承認していな�
 
 | 対象 | 確認してほしいこと |
 |---|---|
-| `docs/glossary.md` の「Outcome の記録項目」節 | 今回追加した日本語訳が適切か |
-| `docs/input/SAALCO-v1.0-implementation-instructions.md` | エージェントは `docs/input/` を変更しないため、原仕様書の写しは r2 のまま残っている。r3 に更新するかどうかを判断し、更新する場合は人間が行う |
 | DEV-0001 の規則 4.6 の終了 | 上の 1〜5 の承認が記録されたら、エージェントが DEV-0001 の `rule:` から 4.6 を外す（2026-09-24 の指示による）。`status:` は 6.8・10.5 が残るため `open` のままとする |
 
 ## Decided（2026-09-24 に人間が判断済み）
@@ -31,6 +29,9 @@ SAALCO（エージェント）は、以下のどの文書も承認していな�
 - 実装指示書 r3（§9 の台帳の `status`・`reason`・`superseded_by`）
 - `saalco retire` コマンドの新設（REQ-0003 以下。REQ → 設計 → 承認の順で進める）
 - 生成する雛形（文書の雛形と `AGENTS.md` の雛形）の本文の日本語化（REQ-0004 以下）
+- `docs/glossary.md` の「Outcome の記録項目」節の訳語
+- `docs/input/` の仕様書の写しを r3 に更新すること（人間の指示により、エージェントが写しを更新した）
+- H1〜H3 の設計文書5件の承認（`saalco approve` により記録済み）
 
 ## Test specifications
 
