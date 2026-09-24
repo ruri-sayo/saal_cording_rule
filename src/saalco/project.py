@@ -92,7 +92,7 @@ def git(root: Path, *args: str, check: bool = True) -> str:
             check=False,
         )
     except FileNotFoundError as exc:
-        raise ToolError(f"ERROR git: command not found. Install git.") from exc
+        raise ToolError("ERROR git: command not found. Install git.") from exc
     if check and proc.returncode:
         raise SaalcoError(proc.stderr.strip() or f"git {' '.join(args)} failed")
     return proc.stdout.strip()

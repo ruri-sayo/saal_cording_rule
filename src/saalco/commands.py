@@ -278,9 +278,7 @@ def approve(root: Path, paths: list[str]) -> None:
         try:
             path.relative_to(features_dir)
         except ValueError:
-            raise SaalcoError(
-                f"ERROR {path}: only files under docs/features/ may be approved."
-            )
+            raise SaalcoError(f"ERROR {path}: only files under docs/features/ may be approved.")
 
     # All paths valid; now approve
     for value in paths:

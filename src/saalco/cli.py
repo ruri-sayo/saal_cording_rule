@@ -125,13 +125,9 @@ def dispatch(args: argparse.Namespace) -> int:
                 if not auto_slug:
                     # Non-ASCII title; need explicit slug
                     if args.non_interactive:
-                        raise SaalcoError(
-                            "ERROR title produces no ASCII slug; pass --slug SLUG."
-                        )
+                        raise SaalcoError("ERROR title produces no ASCII slug; pass --slug SLUG.")
                     if not sys.stdin.isatty():
-                        raise SaalcoError(
-                            "ERROR title produces no ASCII slug; pass --slug SLUG."
-                        )
+                        raise SaalcoError("ERROR title produces no ASCII slug; pass --slug SLUG.")
                     slug = input("slug (--slug): ").strip()
                     if not slug:
                         raise SaalcoError("ERROR slug is required.")
