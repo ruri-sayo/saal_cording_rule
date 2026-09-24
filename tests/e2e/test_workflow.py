@@ -16,6 +16,7 @@ pytestmark impl_aware: drives the CLI and asserts on its real subprocess output/
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -223,6 +224,86 @@ def test_full_spec_19_lifecycle(e2e_root):
     assert '"verify_status": "verified"' in result.stdout
     rtm = (root / "docs/trace/rtm.csv").read_text()
     assert "REQ-0001" in rtm and "verified" in rtm
+
+
+def test_retire_workflow_ledger_and_check_integration(e2e_root):
+    """ST-0003: `saalco retire` end-to-end, including the `saalco check` ERROR paths for a
+    lingering item heading and a lingering reference to a retired ID.
+    """
+    root, env = e2e_root
+
+    result = _saalco(
+        root,
+        "init",
+        "--name",
+        "e2e-retire",
+        "--type",
+        "system",
+        "--language",
+        "python",
+        "--non-interactive",
+        env=env,
+    )
+    assert result.returncode == 0, result.stderr
+
+    result = _saalco(root, "new", "feature", "Widget", "--tier", "S", "--slug", "widget", env=env)
+    assert result.returncode == 0, result.stderr
+
+    # 1. Allocate a throwaway DD ID plus another one to supersede it with.
+    result = _saalco(root, "new", "dd", "Old approach", "--feature", "F-001", env=env)
+    assert result.returncode == 0, result.stderr
+    old_id = result.stdout.strip()
+
+    result = _saalco(root, "new", "dd", "New approach", "--feature", "F-001", env=env)
+    assert result.returncode == 0, result.stderr
+    new_id = result.stdout.strip()
+
+    # 2. Retire it.
+    result = _saalco(
+        root, "retire", old_id, "--reason", "統合のため", "--superseded-by", new_id, env=env
+    )
+    assert result.returncode == 0, result.stderr
+    assert old_id in result.stdout
+    assert "heading" in result.stdout
+    assert "references" in result.stdout
+
+    # 3. The ledger row is retired, not deleted.
+    ledger = (root / "docs/ids.ledger").read_text()
+    line = next(line for line in ledger.splitlines() if line.startswith(old_id + "\t"))
+    fields = line.split("\t")
+    assert fields[4] == "retired"
+    assert fields[5] == "統合のため"
+    assert fields[6] == new_id
+
+    dd_path = root / "docs/features/F-001_widget/30-detailed-design.md"
+
+    # 4. The item heading for the retired ID is still in the document: `check` ERRORs.
+    assert f"### {old_id}:" in dd_path.read_text()
+    result = _saalco(root, "check", env=env)
+    assert result.returncode == 1
+    assert "retired" in result.stdout and old_id in result.stdout
+
+    # 5. Remove the heading and its metadata lines; the ledger/document mismatch clears.
+    item_block = re.compile(rf"\n?### {re.escape(old_id)}:.*?(?=\n### |\Z)", re.DOTALL)
+    dd_path.write_text(item_block.sub("", dd_path.read_text()))
+    result = _saalco(root, "check", env=env)
+    assert "retired ID" not in result.stdout or old_id not in result.stdout
+
+    # 6. Reference the retired ID from another item's `covers:`; `check` ERRORs again.
+    ut_result = _saalco(root, "new", "ut", "Widget UT", "--feature", "F-001", env=env)
+    assert ut_result.returncode == 0, ut_result.stderr
+    ut_path = root / "docs/features/F-001_widget/40-unit-test-spec.md"
+    _replace(ut_path, "covers: \n", f"covers: {old_id}\n")
+    result = _saalco(root, "check", env=env)
+    assert result.returncode == 1
+    assert "retired" in result.stdout and old_id in result.stdout
+    _replace(ut_path, f"covers: {old_id}\n", "covers: \n")
+
+    # 7. retire on an unknown ID or an already-retired ID is rejected with exit code 2.
+    result = _saalco(root, "retire", "DD-9999", env=env)
+    assert result.returncode == 2
+    result = _saalco(root, "retire", old_id, env=env)
+    assert result.returncode == 2
 
 
 # NOTE: the coverage_failure fixture's "check --verification FAIL without a DEV, WARNING with

@@ -31,6 +31,8 @@ saalco check
 
 Use `saalco approve <path>...` at human intervention points. After implementation and tests are committed, run `saalco evidence`, commit `evidence/` and `docs/trace/`, then run `saalco check --verification`.
 
+To retire an ID so its number is never reused, run `saalco retire <ID> [--reason TEXT] [--superseded-by ID]`. This only rewrites that ID's row in `docs/ids.ledger` (status/reason/superseded_by columns; the row is never deleted); it does not touch any document, so remove the item's heading and any references yourself, as the command's output reminds you to do.
+
 ## Approval limitation
 
 Approval records the configured Git user, time, version, and a SHA-256 content hash, and refuses non-TTY input. This detects later modification but cannot cryptographically prove that the named human personally reviewed the document. Process controls remain necessary. `SAALCO_ALLOW_NONTTY_APPROVE=1` exists only for SAALCO's automated tests.

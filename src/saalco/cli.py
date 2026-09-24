@@ -25,6 +25,7 @@ from pathlib import Path
 
 from .checks import run as run_check
 from .commands import approve, init_project, new_feature, new_item
+from .commands import retire as retire_command
 from .errors import SaalcoError
 from .evidence import create as create_evidence
 from .evidence import package as package_evidence
@@ -56,6 +57,10 @@ def parser() -> argparse.ArgumentParser:
     new.add_argument("--non-interactive", action="store_true")
     app = subs.add_parser("approve", help="record human approval")
     app.add_argument("paths", nargs="+")
+    retire = subs.add_parser("retire", help="retire an ID so its number is never reused")
+    retire.add_argument("id")
+    retire.add_argument("--reason")
+    retire.add_argument("--superseded-by")
     check = subs.add_parser("check", help="check project conformance")
     check.add_argument("--verification", action="store_true")
     check.add_argument("--json", action="store_true")
@@ -145,6 +150,9 @@ def dispatch(args: argparse.Namespace) -> int:
         return 0
     if args.command == "approve":
         approve(root, args.paths)
+        return 0
+    if args.command == "retire":
+        print(retire_command(root, args.id, args.reason, args.superseded_by))
         return 0
     if args.command == "check":
         report = run_check(root, args.verification)

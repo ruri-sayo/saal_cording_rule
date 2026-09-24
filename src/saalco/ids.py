@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import os
 import re
+import tempfile
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
@@ -76,11 +77,30 @@ def read_ledger(root: Path) -> list[LedgerRow]:
     Side Effects:
         Reads docs/ids.ledger file.
     """
-    result: list[LedgerRow] = []
     path = root / "docs" / "ids.ledger"
     if not path.exists():
-        return result
-    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        return []
+    return _parse_ledger_text(path, path.read_text(encoding="utf-8"))
+
+
+def _parse_ledger_text(path: Path, text: str) -> list[LedgerRow]:
+    """Parse ledger row text into `LedgerRow` objects.
+
+    Shared by `read_ledger` (reads the real ledger) and `retire` (re-parses a temp file to
+    verify a rewrite before the atomic replace).
+
+    Args:
+        path: Path used only for error messages.
+        text: Raw ledger file content.
+
+    Returns:
+        List of `LedgerRow`; empty list for empty text.
+
+    Raises:
+        SaalcoError: If ledger format is invalid (field count, ID format, status value).
+    """
+    result: list[LedgerRow] = []
+    for number, line in enumerate(text.splitlines(), 1):
         if not line.strip():
             continue
         parts = line.split("\t")
@@ -180,3 +200,100 @@ def allocate(root: Path, kind: str, feature: str, title: str) -> str:
         with (root / "docs" / "ids.ledger").open("a", encoding="utf-8", newline="\n") as handle:
             handle.write(f"{ident}\t{feature}\t{stamp}\t{title}\n")
     return ident
+
+
+def retire(
+    root: Path, ident: str, reason: str | None = None, superseded_by: str | None = None
+) -> LedgerRow:
+    r"""Retire a ledger row so its ID is never reused (spec §9 revised; DD-0003).
+
+    Rewrites only the `status`/`reason`/`superseded_by` columns of the target row, in place;
+    every other row and every other column of the target row is left byte-for-byte identical.
+    Never touches `docs/features/**` documents — removing the item heading and any references
+    is left to the caller (see the guidance `saalco.commands.retire` returns).
+
+    Args:
+        root: Project root directory.
+        ident: ID to retire (e.g., 'REQ-0013').
+        reason: Optional free-text retirement reason. Must not contain a tab or newline
+            (the ledger is tab-separated, one row per line).
+        superseded_by: Optional replacement ID. If given, it must already exist in the
+            ledger, in valid ID format, and not itself be retired.
+
+    Returns:
+        The updated `LedgerRow` for `ident`.
+
+    Raises:
+        SaalcoError: If `ident` is unknown or already retired; if `superseded_by` is
+            malformed, unknown, or retired; or if `reason` contains a tab or newline.
+            All are usage errors (exit code 2).
+
+    Side Effects:
+        Acquires the exclusive `.saal/ids.lock` (same lock as `allocate`). Reads and
+        atomically rewrites `docs/ids.ledger` (temp file, re-parse verification, then
+        `os.replace`). Never deletes a row and never writes to any other file.
+    """
+    reason = reason or ""
+    if "\t" in reason or "\n" in reason:
+        raise SaalcoError(
+            f"ERROR retire {ident}: --reason must not contain a tab or newline (the ledger "
+            "is tab-separated). Remove it from the reason text and retry."
+        )
+    if superseded_by is not None and not ID_PATTERN.match(superseded_by):
+        raise SaalcoError(
+            f"ERROR retire {ident}: --superseded-by '{superseded_by}' is not a valid ID "
+            "(expected e.g. REQ-0001). Pass a valid ID or omit --superseded-by."
+        )
+    path = root / "docs" / "ids.ledger"
+    with lock(root):
+        rows = read_ledger(root)
+        by_id = {row.id: row for row in rows}
+        target = by_id.get(ident)
+        if target is None:
+            raise SaalcoError(
+                f"ERROR retire {ident}: unknown ID; not found in docs/ids.ledger. Check the "
+                "ID and retry, or allocate it first with `saalco new`."
+            )
+        if target.status == "retired":
+            raise SaalcoError(
+                f"ERROR retire {ident}: already retired. No action needed; if you meant a "
+                "different ID, pass that ID instead."
+            )
+        if superseded_by is not None:
+            replacement = by_id.get(superseded_by)
+            if replacement is None:
+                raise SaalcoError(
+                    f"ERROR retire {ident}: --superseded-by {superseded_by} is not in "
+                    "docs/ids.ledger. Allocate it first with `saalco new`, or pass an "
+                    "existing active ID."
+                )
+            if replacement.status == "retired":
+                raise SaalcoError(
+                    f"ERROR retire {ident}: --superseded-by {superseded_by} is itself "
+                    "retired. Pass a currently active ID."
+                )
+        lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+        index = target.line - 1
+        raw = lines[index]
+        trailing_newline = "\n" if raw.endswith("\n") else ""
+        parts = raw.rstrip("\n").split("\t")
+        lines[index] = "\t".join(parts[:4] + ["retired", reason, superseded_by or ""]) + (
+            trailing_newline or "\n"
+        )
+        new_text = "".join(lines)
+        fd, name = tempfile.mkstemp(prefix=".ids.ledger.", dir=path.parent, text=True)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(new_text)
+            verified = _parse_ledger_text(Path(name), new_text)
+            if len(verified) != len(rows):
+                raise SaalcoError(
+                    f"ERROR retire {ident}: internal error; rewritten ledger row count "
+                    "changed. Aborting without replacing docs/ids.ledger."
+                )
+            os.replace(name, path)
+        finally:
+            if os.path.exists(name):
+                os.unlink(name)
+        updated = next(row for row in verified if row.id == ident)
+    return updated

@@ -4,6 +4,7 @@ Responsibilities:
 - Initialize a SAALCO project with standard directory structure.
 - Allocate and create feature documents.
 - Add items to existing feature documents.
+- Retire ledger IDs so their numbers are never reused.
 - Record human approvals with content hashing.
 
 Non-responsibilities:
@@ -30,6 +31,7 @@ from pathlib import Path
 from .documents import atomic_write, content_hash, parse_document, set_header
 from .errors import SaalcoError, ToolError
 from .ids import allocate
+from .ids import retire as retire_ledger_row
 from .project import config, git
 from .templates import AGENTS, FILE_FOR_KIND, TIER_FILES, feature_document, project_document
 
@@ -307,3 +309,32 @@ def approve(root: Path, paths: list[str]) -> None:
         )
         doc.header["approved_hash"] = content_hash(doc)
         atomic_write(doc)
+
+
+def retire(root: Path, ident: str, reason: str | None, superseded_by: str | None) -> str:
+    """Retire a ledger ID via `saalco.ids.retire` and build the CLI guidance message.
+
+    Args:
+        root: Project root directory.
+        ident: ID to retire (e.g., 'REQ-0013').
+        reason: Optional free-text retirement reason (no tab/newline).
+        superseded_by: Optional replacement ID (must be active and in the ledger).
+
+    Returns:
+        Standard-output text: the retired ID plus a reminder to remove the item heading
+        and any references from `docs/features/**` (this command does not touch documents).
+
+    Raises:
+        SaalcoError: Propagated from `saalco.ids.retire` (unknown/already-retired ID,
+            invalid `superseded_by`, or a reason containing a tab/newline).
+
+    Side Effects:
+        Delegates to `saalco.ids.retire`: acquires `.saal/ids.lock`, atomically rewrites
+        `docs/ids.ledger`. Does not modify any document.
+    """
+    row = retire_ledger_row(root, ident, reason, superseded_by)
+    return (
+        f"Retired {row.id}.\n"
+        "Remove its item heading and any references from the documents now "
+        "(otherwise `saalco check` will report the ID as reused/still referenced)."
+    )

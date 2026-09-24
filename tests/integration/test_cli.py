@@ -66,8 +66,8 @@ def test_init_research_vs_system_outcome_templates_differ(tmp_path, monkeypatch)
 
     research_outcome = (research / "docs/features/F-001_thing/80-outcome.md").read_text()
     system_outcome = (system / "docs/features/F-001_thing/80-outcome.md").read_text()
-    assert "dataset version" in research_outcome
-    assert "deployment target" in system_outcome
+    assert "データセットバージョン" in research_outcome
+    assert "デプロイ先" in system_outcome
     assert research_outcome != system_outcome
 
 
@@ -177,6 +177,86 @@ def test_new_item_on_approved_document_resets_to_draft_with_warning(tmp_path, mo
     assert "approval invalidated" in captured.err
     assert "status: draft" in req.read_text()
     assert "status: approved" not in req.read_text()
+
+
+# ---------------------------------------------------------------------------
+# retire (REQ-0003 / DD-0003 / MD-0003)
+# ---------------------------------------------------------------------------
+
+
+def _new_req(tmp_path, capsys) -> str:
+    main(["new", "req", "Need X", "--feature", "F-001"])
+    return capsys.readouterr().out.strip()
+
+
+def test_retire_prints_id_and_document_cleanup_guidance(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    main(["init", "--name", "x", "--type", "system", "--language", "python", "--non-interactive"])
+    main(["new", "feature", "First", "--tier", "S", "--slug", "first"])
+    capsys.readouterr()
+    ident = _new_req(tmp_path, capsys)
+    replacement = _new_req(tmp_path, capsys)
+
+    code = main(["retire", ident, "--reason", "merged", "--superseded-by", replacement])
+    out = capsys.readouterr().out
+
+    assert code == 0
+    assert ident in out
+    assert "heading" in out
+    assert "references" in out
+    ledger = (tmp_path / "docs/ids.ledger").read_text()
+    line = next(line for line in ledger.splitlines() if line.startswith(ident + "\t"))
+    fields = line.split("\t")
+    assert fields[4] == "retired"
+    assert fields[5] == "merged"
+    assert fields[6] == replacement
+
+
+def test_retire_does_not_touch_documents(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    main(["init", "--name", "x", "--type", "system", "--language", "python", "--non-interactive"])
+    main(["new", "feature", "First", "--tier", "S", "--slug", "first"])
+    capsys.readouterr()
+    ident = _new_req(tmp_path, capsys)
+    req_doc = tmp_path / "docs/features/F-001_first/10-requirements.md"
+    before = req_doc.read_text()
+
+    assert main(["retire", ident]) == 0
+    assert req_doc.read_text() == before
+
+
+def test_retire_unknown_id_exits_2(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    main(["init", "--name", "x", "--type", "system", "--language", "python", "--non-interactive"])
+    assert main(["retire", "REQ-9999"]) == 2
+
+
+def test_retire_already_retired_id_exits_2(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    main(["init", "--name", "x", "--type", "system", "--language", "python", "--non-interactive"])
+    main(["new", "feature", "First", "--tier", "S", "--slug", "first"])
+    capsys.readouterr()
+    ident = _new_req(tmp_path, capsys)
+    assert main(["retire", ident]) == 0
+    assert main(["retire", ident]) == 2
+
+
+def test_retire_invalid_superseded_by_exits_2(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    main(["init", "--name", "x", "--type", "system", "--language", "python", "--non-interactive"])
+    main(["new", "feature", "First", "--tier", "S", "--slug", "first"])
+    capsys.readouterr()
+    ident = _new_req(tmp_path, capsys)
+    assert main(["retire", ident, "--superseded-by", "not-an-id"]) == 2
+
+
+def test_retire_reason_with_tab_exits_2(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    main(["init", "--name", "x", "--type", "system", "--language", "python", "--non-interactive"])
+    main(["new", "feature", "First", "--tier", "S", "--slug", "first"])
+    capsys.readouterr()
+    ident = _new_req(tmp_path, capsys)
+    assert main(["retire", ident, "--reason", "bad\ttab"]) == 2
 
 
 # ---------------------------------------------------------------------------
