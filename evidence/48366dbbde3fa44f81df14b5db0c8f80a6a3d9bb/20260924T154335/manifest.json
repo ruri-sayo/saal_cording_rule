@@ -1,0 +1,888 @@
+{
+  "schema_version": "1.0",
+  "saal_rules_version": "1.0",
+  "saalco_version": "1.0.0",
+  "target_commit": "48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb",
+  "run_id": "20260924T154335",
+  "executed_at": "2026-09-24T15:43:51+09:00",
+  "environment": {
+    "os": "Darwin",
+    "python": "3.14.5",
+    "arch": "arm64"
+  },
+  "lockfile": {
+    "path": "uv.lock",
+    "sha256": "335d78cbbe955d7c401186dcc8a0ea2857a06743c2513f1a21a592236d87bc8b"
+  },
+  "gates": [
+    {
+      "name": "format",
+      "command": "uv run ruff format --check .",
+      "started_at": "2026-09-24T15:43:35+09:00",
+      "ended_at": "2026-09-24T15:43:35+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "lint",
+      "command": "uv run ruff check .",
+      "started_at": "2026-09-24T15:43:35+09:00",
+      "ended_at": "2026-09-24T15:43:35+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "typecheck",
+      "command": "uv run mypy src",
+      "started_at": "2026-09-24T15:43:35+09:00",
+      "ended_at": "2026-09-24T15:43:35+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "secret_scan",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "dependency_audit",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "static_analysis",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "saalco-check",
+      "command": "saalco check",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": 1,
+      "result": "FAIL",
+      "tool_version": "1.0.0"
+    },
+    {
+      "name": "test.unit",
+      "command": "uv run pytest tests/unit --cov=src --cov-context=test -p no:cacheprovider --junitxml=/Users/m-yukito/Developer/saalco/.saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/junit-unit.xml",
+      "started_at": "2026-09-24T15:43:35+09:00",
+      "ended_at": "2026-09-24T15:43:42+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "test.integration",
+      "command": "uv run pytest tests/integration --cov=src --cov-context=test --cov-append -p no:cacheprovider --junitxml=/Users/m-yukito/Developer/saalco/.saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/junit-integration.xml",
+      "started_at": "2026-09-24T15:43:42+09:00",
+      "ended_at": "2026-09-24T15:43:47+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "test.e2e",
+      "command": "uv run pytest tests/e2e --cov=src --cov-context=test --cov-append -p no:cacheprovider --junitxml=/Users/m-yukito/Developer/saalco/.saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/junit-e2e.xml",
+      "started_at": "2026-09-24T15:43:47+09:00",
+      "ended_at": "2026-09-24T15:43:51+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    }
+  ],
+  "tests": [
+    {
+      "nodeid": "tests/e2e/test_workflow.py::test_full_spec_19_lifecycle",
+      "category": "e2e",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_research_vs_system_outcome_templates_differ",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_does_not_touch_existing_src_and_tests",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_gitignore_contains_saal_dir",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_existing_pyproject_reports_snippet",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_new_allocates_sequential_ids",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_new_feature_non_ascii_title_without_slug_exits_2",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_new_feature_tier_m_or_l_creates_tier_documents",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_new_item_on_approved_document_resets_to_draft_with_warning",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_approve_edit_check_fail_reapprove_pass",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_approve_rejected_without_tty",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_approve_rejected_outside_docs_features",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_detects_broken_reference",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_detects_missing_tier_document",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_json_output",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_trace_output_is_deterministic",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_evidence_refuses_dirty_tree",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_evidence_package_content",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_verification_coverage_fail_without_dev",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_verification_coverage_fail_downgraded_by_matching_open_dev",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_matches_exact_token_not_substring",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_requires_open_status",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_requires_matching_rule",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_item_id_token",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_file_prefix_token",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_global_check_ignores_scope",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_tier_s_requires_common_files_only",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_tier_l_missing_documents_reported",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_invalid_hash_detected",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_broken_reference_detected",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_strips_run_setup_teardown_and_param_suffixes",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_empty_context_string_ignored",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_missing_json_path_returns_none",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_missing_file_on_disk_returns_none",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_malformed_json_returns_none",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_absolute_path_resolved_relative_to_root",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_preserves_unknown_keys_and_order",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_missing_opening_delimiter",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_missing_closing_delimiter",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_duplicate_key_rejected",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_non_flat_line_rejected",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_content_hash_excludes_approval_keys",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_content_hash_normalizes_crlf",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_content_hash_changes_with_body",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_atomic_write_then_reparse_roundtrip",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_items_extracts_id_kind_title_and_meta",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_items_stops_meta_block_at_next_heading",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_changed_lines_pure_deletion_ignored",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_changed_lines_addition_recorded",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_changed_lines_single_line_hunk_defaults_count_one",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_changed_lines_multiple_files",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_function_with_file",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_class_qualified_with_file",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_strips_parametrize_suffix",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_without_file_resolves_via_filesystem",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_no_plausible_file_returns_none",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_parse_junit_aggregates_parametrize_all_pass",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_parse_junit_aggregates_parametrize_any_failure_fails_all",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_parse_junit_skipped_only_absent_from_results",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_parse_junit_malformed_file_returns_empty",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_current_manifest_none_without_evidence",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_current_manifest_found_for_bookkeeping_only_diff",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_current_manifest_ties_broken_by_latest_run_id",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_allocate_increments_per_kind",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_allocate_never_reuses_id_after_deletion_from_documents",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_allocate_unknown_kind_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_missing_file_returns_empty",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_rejects_wrong_field_count",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_rejects_invalid_id_format",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_lock_contention_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_function_level_verifies_marker",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_class_decorated_test_yields_class_qualified_nodeid",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_module_level_pytestmark_applies_to_all_tests",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_mark_alias_form_is_recognized",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_unmarked_test_defaults_to_impl_aware",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_spec_keyword_is_captured",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_function_marker_overrides_module_pytestmark",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_e2e_category_from_path",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_missing_tests_dir_returns_empty",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_fixtures_directory_is_skipped",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_no_manifest_yields_stale",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_verifies_test_pass_yields_verified",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_verifies_test_not_pass_yields_unverified",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_impl_aware_alone_never_verifies_a_req",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_review_item_satisfied_only_when_approved_and_hash_matches",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_commit_is_current_bookkeeping_only_diff",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_commit_is_current_false_for_non_bookkeeping_diff",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_manual_st_satisfies_when_current_and_pass",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_manual_st_wrong_result_does_not_satisfy",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    }
+  ],
+  "coverage": {
+    "total": 84.07,
+    "diff": 80.0,
+    "diff_base_commit": "3915f60ed6c8cff28fd260aa5aa72f584398fa06",
+    "status": "PASS",
+    "json_path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/coverage.json"
+  },
+  "artifacts": [
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/coverage.data",
+      "sha256": "1538bd758c6e9c16dd7c3ab46d7b98eb79ad86256ebaa9d9db6ea96fb4c3dc39",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/coverage.json",
+      "sha256": "3895d21f4063faef30f307c5c2f791be22bafd9c7d5bbf71d889812f6b5d087b",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/gate-format.log",
+      "sha256": "bf2b11187dce250142e71b24a0bf021d744fd9eeb4a62e4078b8e5547a29100b",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/gate-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/gate-typecheck.log",
+      "sha256": "fe22d95914d7fdd98483ace256b7f2708db4be1255737e5d7cca4d16703ca242",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/junit-e2e.xml",
+      "sha256": "e8f314621726133e9418c042610300466c4024c066e07f385a140350c2108cb7",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/junit-integration.xml",
+      "sha256": "3d5bad6b3c949fbe88eab2c1e1202b76068f44ef69fa455cee2c4adb54d633b7",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/junit-unit.xml",
+      "sha256": "8a89ccc3c4b1d779c34a44497033d425e0a093c18195aeb3127e2e722a173bf1",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/test-e2e.log",
+      "sha256": "e4c31515c5634cfaa37e22f98a642fca688f3e52ba19133d7ea09e3a016d57f1",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/test-integration.log",
+      "sha256": "07a29e74f87d0c79c7557235842383a3a40b34ab5d5c0654d1cdd89c440228ad",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/48366dbbde3fa44f81df14b5db0c8f80a6a3d9bb/20260924T154335/test-unit.log",
+      "sha256": "05c1953aa82dfbd8fabca6d575957e6d466f74a7162d150e563899ed04becc88",
+      "retention_location": ".saal/artifacts"
+    }
+  ],
+  "overall": "FAIL"
+}
