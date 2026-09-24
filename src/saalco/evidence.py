@@ -580,6 +580,10 @@ def create(root: Path) -> tuple[Path, str]:
             {
                 "COVERAGE_FILE": str(raw / "coverage.data"),
                 "PYTHONPYCACHEPREFIX": str(raw / "pycache"),
+                # The sys.monitoring core (default on Python 3.12+) records only the first
+                # test context that executes a line, which would hide verifies tests from
+                # the unapproved-design check (spec §13-14). ctrace records every context.
+                "COVERAGE_CORE": "ctrace",
             },
         )
         if result != "ERROR" and _dirty(root):

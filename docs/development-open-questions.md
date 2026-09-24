@@ -21,6 +21,7 @@ SAALCO v1.0 は、実装指示書の暫定解釈に従って実装している�
 - B：DEV による例外（§8.6）は、規則番号と scope のトークンの完全一致で照合する。scope のトークンは Feature ID、項目 ID、パスの前方一致のいずれかである。DEV の `rule:` にはカンマ区切りで複数の規則番号を書ける。照合に使う規則番号は、6.4（verifies テストが PASS していない）、6.8（RTM が verified でない）、7.1（ゲートの FAIL / ERROR）、7.3（Coverage）、4.6（未承認の設計に対応する実装）である。
 - A：`uv run` の中でツールが見つからない場合（例：プロジェクトの venv に pytest が無い）は、ERROR ではなく FAIL として記録する。どちらも PASS ではない。
 - A：`tests/fixtures/` 以下はサンプルデータであり、マーカーの走査と pytest の収集の対象から外す。
+- A：Python 3.12 以降で coverage.py が既定で使う `sysmon` 方式は、1行につき最初に実行したテストの測定コンテキストしか記録しない。これでは、未承認の設計に対応する実装の検査（§13-14）で verifies テストを見落とす。そのため `saalco evidence` はテストの実行時に `COVERAGE_CORE=ctrace` を指定する。
 
 ## Resolved
 

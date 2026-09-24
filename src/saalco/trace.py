@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import csv
 import io
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -74,6 +75,14 @@ def _commit_is_current(root: Path, commit: str, target: str) -> bool:
 def _as_dicts(value: object) -> list[dict[str, Any]]:
     """Coerce a manifest field expected to be a list of dicts, tolerating malformed input."""
     return value if isinstance(value, list) else []
+
+
+def _join_unique(nodeids: Iterable[str]) -> str:
+    """Join nodeids with commas, keeping first-seen order and dropping duplicates.
+
+    A test carrying several `verifies` markers (e.g. a DD and its MD) must appear once.
+    """
+    return ",".join(dict.fromkeys(nodeids))
 
 
 def generate(root: Path, write: bool = True) -> list[dict[str, str]]:
@@ -172,11 +181,11 @@ def generate(root: Path, write: bool = True) -> list[dict[str, str]]:
                     sorted(x for x in ancestors if x.startswith(("AD-", "DD-", "MD-")))
                 ),
                 "impl_files": ",".join(impl_files),
-                "unit_tests": ",".join(t.nodeid for t in related_tests if t.category == "unit"),
-                "integration_tests": ",".join(
+                "unit_tests": _join_unique(t.nodeid for t in related_tests if t.category == "unit"),
+                "integration_tests": _join_unique(
                     t.nodeid for t in related_tests if t.category == "integration"
                 ),
-                "e2e_tests": ",".join(t.nodeid for t in related_tests if t.category == "e2e"),
+                "e2e_tests": _join_unique(t.nodeid for t in related_tests if t.category == "e2e"),
                 "verify_status": status,
                 "evidence_commit": str(manifest.get("target_commit", "")) if manifest else "",
             }

@@ -206,3 +206,9 @@ def test_manual_st_wrong_result_does_not_satisfy(saal_project, write_manifest_fn
     rows = generate(root, write=False)
     (row,) = [r for r in rows if r["req_id"] == "REQ-0001"]
     assert row["verify_status"] == "unverified"
+
+
+def test_join_unique_drops_duplicate_nodeids_in_order():
+    from saalco.trace import _join_unique
+
+    assert _join_unique(["a::t1", "a::t2", "a::t1"]) == "a::t1,a::t2"

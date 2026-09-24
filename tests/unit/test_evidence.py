@@ -144,3 +144,29 @@ def test_current_manifest_ties_broken_by_latest_run_id(
     write_manifest_fn(root, target=head, run_id="20240101T999999")
     found = current_manifest(root)
     assert found["run_id"] == "20240101T999999"
+
+
+def test_create_runs_pytest_with_ctrace_coverage_core(saal_project, monkeypatch):
+    """Regression: sys.monitoring drops all but the first test context per line (§13-14)."""
+    from conftest import commit_all
+
+    from saalco import evidence
+
+    root = saal_project("valid_project")
+    project = root / "docs/project.md"
+    project.write_text(
+        project.read_text().replace("test.unit:\n", "test.unit: python -m pytest tests/unit\n")
+    )
+    commit_all(root, "configure unit tests")
+    seen: list[dict[str, str] | None] = []
+
+    def fake_run(root_, command, log, environment=None):
+        seen.append(environment)
+        log.write_text("", encoding="utf-8")
+        return 0, "PASS", "t0", "t1"
+
+    monkeypatch.setattr(evidence, "_run", fake_run)
+    evidence.create(root)
+    test_envs = [env for env in seen if env and "COVERAGE_FILE" in env]
+    assert test_envs, "no pytest suite was run"
+    assert all(env.get("COVERAGE_CORE") == "ctrace" for env in test_envs)
