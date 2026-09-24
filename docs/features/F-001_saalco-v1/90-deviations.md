@@ -6,12 +6,13 @@ status: draft
 
 # Deviations
 
-### DEV-0001: Initial migration tests are implementation-aware
+### DEV-0001: SAALCO bootstrap before design approval and RTM verification
 
-rule: 10.5
-scope: F-001, tests/
+rule: 4.6, 6.8, 10.5
+scope: F-001, src/saalco/, tests/
 status: open
-reason: SAALCO was implemented before its own SAAL document set was approved; implementation-derived tests are marked impl_aware.
-resolution: After human approval, create Specification-derived Tests from approved documents in an independent context.
-decided_by: pending human decision
-decided_at: pending human decision
+reason: SAALCO は、自身の SAAL 文書（REQ・AD・DD・MD）が承認される前に実装された（規則 4.6 からの逸脱）。既存のテストは実装を見て書いたため impl_aware であり、Specification-derived Test が無いので RTM の REQ は verified にならない（規則 6.8 からの逸脱）。SAALCO 自身への適用は既存プロジェクトの移行として扱い、移行中の状態をここに記録する（規則 10.5、実装指示書 §20）。
+resolution: 人間が H1〜H3 の承認を行ったあと、承認済みの文書と公開インターフェースだけから、実装を見ない別コンテキストで Specification-derived Test を作成し、RTM の全項目を verified にする。
+end_condition: 4.6 = H1〜H3 の承認対象（10-requirements.md、20-architecture.md、00-meta.md、30-detailed-design.md、35-module-design.md）がすべて承認された時点で終了; 6.8 = RTM の全項目が verified になった時点で終了; 10.5 = 4.6 と 6.8 がともに終了した時点で終了
+decided_by: ruri-sayo
+decided_at: 2026-09-24

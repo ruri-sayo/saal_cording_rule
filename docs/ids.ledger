@@ -7,3 +7,8 @@ UT-0001	F-001	2026-09-22T17:46:48+09:00	Core document and ID unit tests
 IT-0001	F-001	2026-09-22T17:46:48+09:00	CLI workflow integration test
 ST-0001	F-001	2026-09-22T17:46:48+09:00	Installed CLI end-to-end workflow
 DEV-0001	F-001	2026-09-22T17:46:48+09:00	Initial migration tests are implementation-aware
+REQ-0002	F-001	2026-09-24T16:16:39+09:00	Retire IDs without reusing their numbers
+DD-0002	F-001	2026-09-24T16:16:39+09:00	Ledger row status and retired-ID checks
+MD-0002	F-001	2026-09-24T16:16:39+09:00	Ledger parsing and retirement validation in ids and checks modules
+UT-0002	F-001	2026-09-24T16:16:39+09:00	Ledger retirement unit test specification
+ST-0002	F-001	2026-09-24T16:16:39+09:00	Retired ID handling through the CLI
