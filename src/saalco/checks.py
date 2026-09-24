@@ -233,7 +233,10 @@ def _as_dicts(value: object) -> list[dict[str, Any]]:
 
 
 def _tracked_src_files(root: Path) -> set[str]:
-    """List git-tracked files under `src/`, as repo-relative POSIX paths.
+    """List git-tracked Python files under `src/`, as repo-relative POSIX paths.
+
+    Only `.py` files are implementation files that coverage.py can attribute to tests;
+    data files such as JSON schemas are excluded.
 
     Side Effects:
         Invokes `git ls-files src` (read-only). Returns an empty set if git is unavailable
@@ -252,7 +255,7 @@ def _tracked_src_files(root: Path) -> set[str]:
         return set()
     if proc.returncode:
         return set()
-    return {line for line in proc.stdout.splitlines() if line.strip()}
+    return {line for line in proc.stdout.splitlines() if line.strip().endswith(".py")}
 
 
 def _check_unapproved_design(
