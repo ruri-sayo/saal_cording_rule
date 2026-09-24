@@ -1,7 +1,11 @@
 ---
 kind: MD
 feature: F-001
-status: draft
+status: approved
+approved_by: ruri-sayo
+approved_at: 2026-09-24T18:42:22+09:00
+version: 1
+approved_hash: 85d8bc0c3aafac57261f1ad8fa80bbf840158a94211afaf51ce53c289d06a673
 ---
 
 # Module Design

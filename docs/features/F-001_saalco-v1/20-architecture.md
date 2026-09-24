@@ -1,7 +1,11 @@
 ---
 kind: AD
 feature: F-001
-status: draft
+status: approved
+approved_by: ruri-sayo
+approved_at: 2026-09-24T18:42:22+09:00
+version: 1
+approved_hash: aeaab2ddb25ae1a944900c4cbc216cba8f9d677e81e3b80fda8b66a54d43f1c1
 ---
 
 # Architecture
