@@ -12,3 +12,12 @@ DD-0002	F-001	2026-09-24T16:16:39+09:00	Ledger row status and retired-ID checks
 MD-0002	F-001	2026-09-24T16:16:39+09:00	Ledger parsing and retirement validation in ids and checks modules
 UT-0002	F-001	2026-09-24T16:16:39+09:00	Ledger retirement unit test specification
 ST-0002	F-001	2026-09-24T16:16:39+09:00	Retired ID handling through the CLI
+REQ-0003	F-001	2026-09-24T18:38:16+09:00	Retire ledger IDs via the CLI
+DD-0003	F-001	2026-09-24T18:38:22+09:00	Retire command validation and atomic ledger row rewrite
+MD-0003	F-001	2026-09-24T18:38:22+09:00	Retire command implementation in ids and commands modules
+UT-0003	F-001	2026-09-24T18:38:22+09:00	Retire command unit test specification
+ST-0003	F-001	2026-09-24T18:38:22+09:00	Retire command end-to-end workflow
+REQ-0004	F-001	2026-09-24T18:39:11+09:00	Generate document and AGENTS.md templates in Japanese body text
+DD-0004	F-001	2026-09-24T18:39:11+09:00	Japanese-body template generation with fixed English machine-matched labels
+MD-0004	F-001	2026-09-24T18:39:11+09:00	Template text changes in the templates module
+UT-0004	F-001	2026-09-24T18:39:11+09:00	Template language unit test specification

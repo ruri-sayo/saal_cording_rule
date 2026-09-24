@@ -79,6 +79,25 @@
 | 人間の介入点 | human intervention point | はい（`H1`〜`H6`） | |
 | 移行 | migration | — | 既存プロジェクトを規則へ移行すること（規則 10.5） |
 
+## Outcome の記録項目（`80-outcome.md`）
+
+規則 9.1／9.2 が定める記録項目のラベル。`saalco` はこれらの行を機械的に照合しない（照合対象は無し）ため、翻訳しても `checks`/`trace` の判定に影響しない。
+
+| 日本語 | 英語 | 照合対象 | 説明 |
+|---|---|---|---|
+| コードcommit | code commit | — | research：Evidence記録済みの対象commit |
+| データセットバージョン | dataset version | — | research |
+| モデル | model | — | research：名称・バージョンまたは重みのhash |
+| 設定 | config | — | research |
+| 乱数シード | seed | — | research |
+| 実行環境 | environment | — | research |
+| 結果の所在 | result location | — | research |
+| 結果hash | result hash | — | research |
+| リリースバージョン | release version | — | system |
+| 対象commit | target commit | — | system |
+| デプロイ先 | deployment target | — | system |
+| リリース日 | release date | — | system |
+
 ## コード記述規則の固定項目名
 
 | 日本語 | 英語 | 照合対象 | 説明 |
