@@ -1,0 +1,1824 @@
+{
+  "schema_version": "1.0",
+  "saal_rules_version": "1.1",
+  "saalco_version": "1.0.0",
+  "target_commit": "3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136",
+  "run_id": "20260924T185924",
+  "executed_at": "2026-09-24T18:59:56+09:00",
+  "environment": {
+    "os": "Darwin",
+    "python": "3.14.5",
+    "arch": "arm64"
+  },
+  "lockfile": {
+    "path": "uv.lock",
+    "sha256": "335d78cbbe955d7c401186dcc8a0ea2857a06743c2513f1a21a592236d87bc8b"
+  },
+  "gates": [
+    {
+      "name": "format",
+      "command": "uv run ruff format --check .",
+      "started_at": "2026-09-24T18:59:24+09:00",
+      "ended_at": "2026-09-24T18:59:24+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "lint",
+      "command": "uv run ruff check .",
+      "started_at": "2026-09-24T18:59:24+09:00",
+      "ended_at": "2026-09-24T18:59:24+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "typecheck",
+      "command": "uv run mypy src",
+      "started_at": "2026-09-24T18:59:24+09:00",
+      "ended_at": "2026-09-24T18:59:25+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "secret_scan",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "dependency_audit",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "static_analysis",
+      "command": "",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": null,
+      "result": "NOT_CONFIGURED",
+      "tool_version": null
+    },
+    {
+      "name": "saalco-check",
+      "command": "saalco check",
+      "started_at": null,
+      "ended_at": null,
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "1.0.0"
+    },
+    {
+      "name": "test.unit",
+      "command": "uv run pytest tests/unit --cov=src --cov-context=test -p no:cacheprovider --junitxml=/Users/m-yukito/Developer/saalco/.saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/junit-unit.xml",
+      "started_at": "2026-09-24T18:59:25+09:00",
+      "ended_at": "2026-09-24T18:59:36+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "test.integration",
+      "command": "uv run pytest tests/integration --cov=src --cov-context=test --cov-append -p no:cacheprovider --junitxml=/Users/m-yukito/Developer/saalco/.saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/junit-integration.xml",
+      "started_at": "2026-09-24T18:59:36+09:00",
+      "ended_at": "2026-09-24T18:59:44+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    },
+    {
+      "name": "test.e2e",
+      "command": "uv run pytest tests/e2e --cov=src --cov-context=test --cov-append -p no:cacheprovider --junitxml=/Users/m-yukito/Developer/saalco/.saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/junit-e2e.xml",
+      "started_at": "2026-09-24T18:59:44+09:00",
+      "ended_at": "2026-09-24T18:59:55+09:00",
+      "exit_code": 0,
+      "result": "PASS",
+      "tool_version": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+    }
+  ],
+  "tests": [
+    {
+      "nodeid": "tests/e2e/test_spec_system.py::test_req_0001_full_cli_lifecycle",
+      "category": "e2e",
+      "marker": "verifies",
+      "referenced_id": "REQ-0001",
+      "spec": "ST-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/e2e/test_spec_system.py::test_req_0002_retired_id_not_reused_and_references_flagged",
+      "category": "e2e",
+      "marker": "verifies",
+      "referenced_id": "REQ-0002",
+      "spec": "ST-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/e2e/test_spec_system.py::test_req_0003_retire_command_end_to_end",
+      "category": "e2e",
+      "marker": "verifies",
+      "referenced_id": "REQ-0003",
+      "spec": "ST-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/e2e/test_spec_system.py::test_req_0004_generated_documents_are_japanese",
+      "category": "e2e",
+      "marker": "verifies",
+      "referenced_id": "REQ-0004",
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/e2e/test_workflow.py::test_full_spec_19_lifecycle",
+      "category": "e2e",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/e2e/test_workflow.py::test_retire_workflow_ledger_and_check_integration",
+      "category": "e2e",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_research_vs_system_outcome_templates_differ",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_does_not_touch_existing_src_and_tests",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_gitignore_contains_saal_dir",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_init_existing_pyproject_reports_snippet",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_new_allocates_sequential_ids",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_new_feature_non_ascii_title_without_slug_exits_2",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_new_feature_tier_m_or_l_creates_tier_documents",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_new_item_on_approved_document_resets_to_draft_with_warning",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_retire_prints_id_and_document_cleanup_guidance",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_retire_does_not_touch_documents",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_retire_unknown_id_exits_2",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_retire_already_retired_id_exits_2",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_retire_invalid_superseded_by_exits_2",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_retire_reason_with_tab_exits_2",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_approve_edit_check_fail_reapprove_pass",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_approve_rejected_without_tty",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_approve_rejected_outside_docs_features",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_detects_broken_reference",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_detects_missing_tier_document",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_json_output",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_trace_output_is_deterministic",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_evidence_refuses_dirty_tree",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_evidence_package_content",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_verification_coverage_fail_without_dev",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_cli.py::test_check_verification_coverage_fail_downgraded_by_matching_open_dev",
+      "category": "integration",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_spec_integration.py::test_init_creates_standard_structure",
+      "category": "integration",
+      "marker": "verifies",
+      "referenced_id": "AD-0001",
+      "spec": "IT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_spec_integration.py::test_init_does_not_clobber_existing_files_and_reports_conflicts",
+      "category": "integration",
+      "marker": "verifies",
+      "referenced_id": "AD-0001",
+      "spec": "IT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_spec_integration.py::test_new_allocates_ledger_rows_and_appends_items",
+      "category": "integration",
+      "marker": "verifies",
+      "referenced_id": "AD-0001",
+      "spec": "IT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_spec_integration.py::test_new_item_on_approved_document_invalidates_approval_with_warning",
+      "category": "integration",
+      "marker": "verifies",
+      "referenced_id": "AD-0001",
+      "spec": "IT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_spec_integration.py::test_approve_edit_check_fail_reapprove_pass",
+      "category": "integration",
+      "marker": "verifies",
+      "referenced_id": "AD-0001",
+      "spec": "IT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_spec_integration.py::test_trace_output_matches_covers_graph",
+      "category": "integration",
+      "marker": "verifies",
+      "referenced_id": "AD-0001",
+      "spec": "IT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_spec_integration.py::test_evidence_rejects_dirty_working_tree",
+      "category": "integration",
+      "marker": "verifies",
+      "referenced_id": "AD-0001",
+      "spec": "IT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/integration/test_spec_integration.py::test_evidence_generates_manifest_and_summary_for_clean_tree",
+      "category": "integration",
+      "marker": "verifies",
+      "referenced_id": "AD-0001",
+      "spec": "IT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_matches_exact_token_not_substring",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_requires_open_status",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_requires_matching_rule",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_item_id_token",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_file_prefix_token",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_multi_rule_matches_any_listed_token",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_multi_rule_no_substring_match",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_downgrade_global_check_ignores_scope",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_tier_s_requires_common_files_only",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_tier_l_missing_documents_reported",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_invalid_hash_detected",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_broken_reference_detected",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_legacy_four_field_ledger_rows_are_active_and_ok",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_retired_id_excluded_from_ledger_document_mismatch_check",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_retired_id_reused_via_duplicate_ledger_row_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_retired_id_still_declared_as_document_heading_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_retired_feature_id_reused_as_directory_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_covers_reference_to_retired_id_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_covers_reference_to_retired_id_reports_retired_message_not_unknown_id",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_verifies_marker_referencing_retired_id_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_dev_scope_referencing_retired_id_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_committed_rtm_csv_referencing_retired_id_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_superseded_by_unknown_id_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_checks.py::test_superseded_by_itself_retired_is_error",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_strips_run_setup_teardown_and_param_suffixes",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_empty_context_string_ignored",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_missing_json_path_returns_none",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_missing_file_on_disk_returns_none",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_malformed_json_returns_none",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_coverage_contexts.py::test_absolute_path_resolved_relative_to_root",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_preserves_unknown_keys_and_order",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_missing_opening_delimiter",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_missing_closing_delimiter",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_duplicate_key_rejected",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_parse_non_flat_line_rejected",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_content_hash_excludes_approval_keys",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_content_hash_normalizes_crlf",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_content_hash_changes_with_body",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_atomic_write_then_reparse_roundtrip",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_items_extracts_id_kind_title_and_meta",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_documents.py::test_items_stops_meta_block_at_next_heading",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_changed_lines_pure_deletion_ignored",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_changed_lines_addition_recorded",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_changed_lines_single_line_hunk_defaults_count_one",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_changed_lines_multiple_files",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_function_with_file",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_class_qualified_with_file",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_strips_parametrize_suffix",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_without_file_resolves_via_filesystem",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_junit_nodeid_no_plausible_file_returns_none",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_parse_junit_aggregates_parametrize_all_pass",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_parse_junit_aggregates_parametrize_any_failure_fails_all",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_parse_junit_skipped_only_absent_from_results",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_parse_junit_malformed_file_returns_empty",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_current_manifest_none_without_evidence",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_current_manifest_found_for_bookkeeping_only_diff",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_current_manifest_ties_broken_by_latest_run_id",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_evidence.py::test_create_runs_pytest_with_ctrace_coverage_core",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_allocate_increments_per_kind",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_allocate_never_reuses_id_after_deletion_from_documents",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_allocate_unknown_kind_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_missing_file_returns_empty",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_rejects_wrong_field_count",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_rejects_too_many_fields",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_rejects_invalid_id_format",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_legacy_four_field_row_is_active",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_empty_status_field_is_active",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_retired_row_with_reason_and_superseded_by",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_read_ledger_rejects_invalid_status",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_allocate_sanitizes_tabs_in_title",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_allocate_never_reuses_a_retired_number",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_lock_contention_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_active_id_sets_retired_status_only",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_without_reason_or_superseded_by",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_unknown_id_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_already_retired_id_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_superseded_by_unknown_id_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_superseded_by_retired_id_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_superseded_by_malformed_id_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_reason_with_tab_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_reason_with_newline_raises",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_never_deletes_a_row",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_interrupted_replace_leaves_original_row_intact",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_ids.py::test_retire_uses_same_lock_as_allocate",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_function_level_verifies_marker",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_class_decorated_test_yields_class_qualified_nodeid",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_module_level_pytestmark_applies_to_all_tests",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_mark_alias_form_is_recognized",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_unmarked_test_defaults_to_impl_aware",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_spec_keyword_is_captured",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_function_marker_overrides_module_pytestmark",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_e2e_category_from_path",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_missing_tests_dir_returns_empty",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_markers.py::test_fixtures_directory_is_skipped",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_header_roundtrip_preserves_unknown_keys",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_header_roundtrip_preserves_unknown_keys",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_content_hash_excludes_approval_keys_and_is_deterministic",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_content_hash_excludes_approval_keys_and_is_deterministic",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_content_hash_normalizes_line_endings",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_content_hash_normalizes_line_endings",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_atomic_write_round_trips_through_reparse",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_atomic_write_round_trips_through_reparse",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ledger_allocate_is_sequential_per_kind",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ledger_allocate_is_sequential_per_kind",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ledger_status_column_missing_treated_as_active",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ledger_status_column_missing_treated_as_active",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ledger_allocate_never_reuses_retired_number",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ledger_allocate_never_reuses_retired_number",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_lock_excludes_concurrent_allocation",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_lock_excludes_concurrent_allocation",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_document_items_default_verify_and_covers_dash_for_req",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_document_items_default_verify_and_covers_dash_for_req",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_markers_scan_handles_function_class_module_and_unmarked",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_markers_scan_handles_function_class_module_and_unmarked",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_tier_files_include_common_required_documents",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_tier_files_include_common_required_documents",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_trace_generate_is_deterministic_and_sorted",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_trace_generate_is_deterministic_and_sorted",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_current_manifest_is_none_without_evidence",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_current_manifest_is_none_without_evidence",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0001",
+      "spec": "UT-0001",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_retired_id_excluded_from_ledger_document_mismatch",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0002",
+      "spec": "UT-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_retired_id_excluded_from_ledger_document_mismatch",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0002",
+      "spec": "UT-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_retired_id_number_reuse_is_error",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0002",
+      "spec": "UT-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_retired_id_number_reuse_is_error",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0002",
+      "spec": "UT-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_reference_to_retired_id_is_error",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0002",
+      "spec": "UT-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_reference_to_retired_id_is_error",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0002",
+      "spec": "UT-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_superseded_by_pointing_to_unknown_or_retired_is_error",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0002",
+      "spec": "UT-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_superseded_by_pointing_to_unknown_or_retired_is_error",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0002",
+      "spec": "UT-0002",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_updates_only_target_row",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_updates_only_target_row",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_unknown_id_raises_usage_error",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_unknown_id_raises_usage_error",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_already_retired_raises",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_already_retired_raises",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_rejects_bad_superseded_by",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_rejects_bad_superseded_by",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_rejects_reason_with_tab_or_newline",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_rejects_reason_with_tab_or_newline",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_commands_retire_reports_guidance_and_id",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_commands_retire_reports_guidance_and_id",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_uses_same_lock_as_allocate",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_ids_retire_uses_same_lock_as_allocate",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0003",
+      "spec": "UT-0003",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_feature_document_body_is_japanese",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0004",
+      "spec": "UT-0004",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_feature_document_body_is_japanese",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0004",
+      "spec": "UT-0004",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_feature_document_keeps_machine_matched_headings_in_english",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0004",
+      "spec": "UT-0004",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_feature_document_keeps_machine_matched_headings_in_english",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0004",
+      "spec": "UT-0004",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_generated_feature_document_still_parses_with_required_headers",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0004",
+      "spec": "UT-0004",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_generated_feature_document_still_parses_with_required_headers",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0004",
+      "spec": "UT-0004",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_templates_agents_constant_matches_repository_agents_md",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "DD-0004",
+      "spec": "UT-0004",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_spec_units.py::test_templates_agents_constant_matches_repository_agents_md",
+      "category": "unit",
+      "marker": "verifies",
+      "referenced_id": "MD-0004",
+      "spec": "UT-0004",
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_templates.py::test_feature_document_body_is_japanese",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_templates.py::test_feature_document_fixed_english_parts_unchanged",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_templates.py::test_feature_document_00_meta_overview_heading_unchanged",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_templates.py::test_feature_document_80_outcome_labels_match_glossary_research",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_templates.py::test_feature_document_80_outcome_labels_match_glossary_system",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_templates.py::test_agents_constant_is_japanese_and_matches_repo_root",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_templates.py::test_generated_document_still_parses",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_no_manifest_yields_stale",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_verifies_test_pass_yields_verified",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_verifies_test_not_pass_yields_unverified",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_impl_aware_alone_never_verifies_a_req",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_review_item_satisfied_only_when_approved_and_hash_matches",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_commit_is_current_bookkeeping_only_diff",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_commit_is_current_false_for_non_bookkeeping_diff",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_manual_st_satisfies_when_current_and_pass",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_manual_st_wrong_result_does_not_satisfy",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    },
+    {
+      "nodeid": "tests/unit/test_trace.py::test_join_unique_drops_duplicate_nodeids_in_order",
+      "category": "unit",
+      "marker": "impl_aware",
+      "referenced_id": null,
+      "spec": null,
+      "result": "PASS"
+    }
+  ],
+  "coverage": {
+    "total": 86.9,
+    "diff": 100.0,
+    "diff_base_commit": "cc38b7fcc130d92f58d02647df0259da20da8a67",
+    "status": "PASS",
+    "json_path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/coverage.json"
+  },
+  "artifacts": [
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/coverage.data",
+      "sha256": "056a2257f1007c4a34d82d039dde5904c1deb68e2f21653e25ca1b22669a17f0",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/coverage.json",
+      "sha256": "24c53e42a70ca367088ac30d9127f95bb6f4c1712239d3e05580bc214e93a020",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/gate-format.log",
+      "sha256": "00130a4c8959aba48d3edd55439cc0023d306b510d8ec56f7d1dd97cd7bf3fb2",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/gate-lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/gate-typecheck.log",
+      "sha256": "fe22d95914d7fdd98483ace256b7f2708db4be1255737e5d7cca4d16703ca242",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/junit-e2e.xml",
+      "sha256": "4d90c9f458e4657ba0d36f121b5e63c6f4a3fad2641ec94e9e929a35373745a3",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/junit-integration.xml",
+      "sha256": "6b862661d9a460c9e5e8683556df7e9f89619962c372a6bba809519839c2b8d8",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/junit-unit.xml",
+      "sha256": "a4201cf06f6fa955da2d3235a31c93ea9e81d39668815def263a5beaf4ca277b",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/test-e2e.log",
+      "sha256": "be911b7380629d0fc8ec18e7dce0694cdd98ea6e8bdd7d1f5b6e83d5c30e3935",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/test-integration.log",
+      "sha256": "3176294f5533a517527dfbf55f03097cc7a645efd1557805e51c2b41b78fce18",
+      "retention_location": ".saal/artifacts"
+    },
+    {
+      "path": ".saal/artifacts/3f2dbcc1034a5b790b1e4f1f52b20a1d7c61a136/20260924T185924/test-unit.log",
+      "sha256": "691271d9090c5adbf459b08b286f29819b6210b604f32f8e2fe87dfcebd3e7cf",
+      "retention_location": ".saal/artifacts"
+    }
+  ],
+  "overall": "PASS"
+}
