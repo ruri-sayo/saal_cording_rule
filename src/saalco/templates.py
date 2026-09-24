@@ -1,3 +1,15 @@
+"""Document templates for SAAL features and projects.
+
+Responsibilities:
+- Provide mapping between item kinds (REQ, DD, etc.) and file names.
+- Define Tier-specific required documents.
+- Generate document skeletons with proper headers and metadata.
+
+Non-responsibilities:
+- Content validation.
+- Dynamic content generation (only static templates).
+"""
+
 from __future__ import annotations
 
 FILE_FOR_KIND = {
@@ -51,6 +63,17 @@ KIND_FOR_FILE = {
 
 
 def feature_document(name: str, feature: str, tier: str, project_type: str) -> str:
+    """Generate a feature document template.
+
+    Args:
+        name: Document file name (e.g., '30-detailed-design.md').
+        feature: Feature ID (e.g., 'F-001').
+        tier: Tier (S, M, or L).
+        project_type: Project type ('research' or 'system').
+
+    Returns:
+        Document text with header and body skeleton.
+    """
     kind = KIND_FOR_FILE[name]
     extra = f"tier: {tier}\n" if name == "00-meta.md" else ""
     heading = name.removesuffix(".md").split("-", 1)[-1].replace("-", " ").title()
@@ -81,6 +104,16 @@ def feature_document(name: str, feature: str, tier: str, project_type: str) -> s
 
 
 def project_document(name: str, project_type: str, language: str) -> str:
+    """Generate a project.md template.
+
+    Args:
+        name: Project name.
+        project_type: Project type ('research' or 'system').
+        language: Programming language ('python' or 'other').
+
+    Returns:
+        Project document text with standard gates, tests, and metadata.
+    """
     return f"""---
 kind: PROJECT
 name: {name}

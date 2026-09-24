@@ -1,3 +1,21 @@
+"""Commands for SAALCO operations.
+
+Responsibilities:
+- Initialize a SAALCO project with standard directory structure.
+- Allocate and create feature documents.
+- Add items to existing feature documents.
+- Record human approvals with content hashing.
+
+Non-responsibilities:
+- Document content validation (done by checks module).
+- Test execution or quality gate running.
+
+External dependencies:
+- git: for repository initialization and user name lookup.
+- subprocess: to run git init and git config.
+- Filesystem: creates/modifies .gitignore, docs/, .saal/, pyproject.toml.
+"""
+
 from __future__ import annotations
 
 import os
@@ -10,7 +28,7 @@ from importlib import resources
 from pathlib import Path
 
 from .documents import atomic_write, content_hash, parse_document, set_header
-from .errors import SaalcoError
+from .errors import SaalcoError, ToolError
 from .ids import allocate
 from .project import config, git
 from .templates import AGENTS, FILE_FOR_KIND, TIER_FILES, feature_document, project_document
@@ -19,6 +37,29 @@ from .templates import AGENTS, FILE_FOR_KIND, TIER_FILES, feature_document, proj
 def init_project(
     root: Path, name: str, project_type: str, language: str, specs: list[str]
 ) -> list[str]:
+    """Initialize a SAALCO project with standard structure.
+
+    Creates directories, template files, SAAL-DEV-RULES.md copy, .gitignore,
+    and pyproject.toml (with guidance if file exists).
+
+    Args:
+        root: Project root directory (typically cwd).
+        name: Project name.
+        project_type: 'research' or 'system'.
+        language: 'python' or 'other'.
+        specs: List of specification file paths to copy to docs/input/.
+
+    Returns:
+        List of file paths that conflicted (already exist, not overwritten).
+
+    Raises:
+        SaalcoError: If invalid project_type/language, spec file not found, SAAL-DEV-RULES not available,
+                     or git init fails.
+
+    Side Effects:
+        Creates directories, writes template files, modifies .gitignore,
+        initializes git repo if needed, runs `git init` (external subprocess).
+    """
     if project_type not in {"research", "system"} or language not in {"python", "other"}:
         raise SaalcoError("ERROR --type and --language have invalid values.")
     created, conflicts = [], []
@@ -75,13 +116,18 @@ def init_project(
     gitignore = root / ".gitignore"
     if gitignore.exists():
         content = gitignore.read_text(encoding="utf-8")
-        if ".saal/artifacts/" not in content:
-            gitignore.write_text(content.rstrip() + "\n.saal/artifacts/\n", encoding="utf-8")
+        if ".saal/" not in content:
+            gitignore.write_text(content.rstrip() + "\n.saal/\n", encoding="utf-8")
     else:
-        gitignore.write_text(".saal/artifacts/\n", encoding="utf-8")
+        gitignore.write_text(".saal/\n", encoding="utf-8")
         created.append(".gitignore")
     if not (root / ".git").exists():
-        subprocess.run(["git", "init"], cwd=root, check=True, stdout=subprocess.PIPE)
+        try:
+            subprocess.run(["git", "init"], cwd=root, check=True, stdout=subprocess.PIPE)
+        except FileNotFoundError as exc:
+            raise ToolError("ERROR git: command not found. Install git.") from exc
+        except subprocess.CalledProcessError as exc:
+            raise ToolError(f"ERROR git init failed: {exc}") from exc
     pyproject = root / "pyproject.toml"
     if not pyproject.exists():
         pyproject.write_text(
@@ -89,28 +135,77 @@ def init_project(
             encoding="utf-8",
         )
         created.append("pyproject.toml")
-    elif root != Path(__file__).resolve().parents[2]:
-        conflicts.append("pyproject.toml (add pytest markers manually if absent)")
+    else:
+        marker_snippet = """[tool.pytest.ini_options]
+markers = [
+  "verifies(id, spec=None): specification-derived test",
+  "impl_aware(id=None): implementation-aware test",
+]"""
+        conflicts.append(f"pyproject.toml (add these markers if absent):\n\n{marker_snippet}")
     return conflicts
 
 
 def new_feature(root: Path, title: str, tier: str, slug: str | None) -> str:
+    """Create a new feature with associated documents.
+
+    Args:
+        root: Project root directory.
+        title: Feature title (human-readable).
+        tier: 'S', 'M', or 'L'.
+        slug: URL-safe slug (optional; auto-generated from title if omitted or None).
+
+    Returns:
+        Allocated feature ID (e.g., 'F-001').
+
+    Raises:
+        SaalcoError: If tier is invalid, slug is auto-generated but empty (non-ASCII title),
+                     or feature directory creation fails.
+
+    Side Effects:
+        Allocates ID, creates docs/features/F-NNN_slug/ directory,
+        writes tier-specific template files.
+    """
     if tier not in TIER_FILES:
         raise SaalcoError("ERROR --tier must be S, M, or L.")
     if slug is None:
         slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
     if not slug:
-        raise SaalcoError("ERROR title cannot produce an ASCII slug; pass --slug.")
+        raise SaalcoError("ERROR title cannot produce an ASCII slug; pass --slug SLUG.")
+    if not re.match(r"^[a-z0-9][a-z0-9-]*$", slug):
+        raise SaalcoError(
+            f"ERROR slug '{slug}' does not match pattern ^[a-z0-9][a-z0-9-]*$. Pass --slug SLUG."
+        )
     ident = allocate(root, "F", "-", title)
     folder = root / "docs/features" / f"{ident}_{slug}"
     folder.mkdir(parents=True)
     ptype = config(root)["type"]
     for name in TIER_FILES[tier]:
-        (folder / name).write_text(feature_document(name, ident, tier, ptype), encoding="utf-8")
+        path = folder / name
+        if path.exists():
+            raise SaalcoError(f"ERROR {path}: file already exists; refusing to overwrite.")
+        path.write_text(feature_document(name, ident, tier, ptype), encoding="utf-8")
     return ident
 
 
 def new_item(root: Path, kind: str, feature: str, title: str) -> tuple[str, str | None]:
+    """Add an item to a feature document or create it.
+
+    Args:
+        root: Project root directory.
+        kind: Item kind ('req', 'ad', 'dd', etc.; case-insensitive).
+        feature: Feature ID prefix (e.g., 'F-001').
+        title: Item title.
+
+    Returns:
+        Tuple of (allocated_id, warning). Warning is non-None if approval was invalidated.
+
+    Raises:
+        SaalcoError: If kind is unsupported or feature directory is not found/ambiguous.
+
+    Side Effects:
+        Allocates ID, creates or appends to document file,
+        resets status to draft if document was approved.
+    """
     kind = kind.upper()
     if kind not in FILE_FOR_KIND:
         raise SaalcoError(f"ERROR unsupported item kind {kind}.")
@@ -146,15 +241,50 @@ def new_item(root: Path, kind: str, feature: str, title: str) -> tuple[str, str 
 
 
 def approve(root: Path, paths: list[str]) -> None:
+    """Record human approval of documents.
+
+    Validates all paths before writing any files. Rejects non-.md files under docs/features/
+    unless they are special documents. Requires TTY (unless SAALCO_ALLOW_NONTTY_APPROVE=1).
+
+    Args:
+        root: Project root directory.
+        paths: Document file paths to approve (relative or absolute).
+
+    Raises:
+        SaalcoError: If TTY check fails, git config user.name unavailable,
+                     path validation fails, or file I/O fails.
+
+    Side Effects:
+        Requires human operator (TTY). Computes content hash, updates header fields,
+        writes updated document atomically.
+    """
     if not sys.stdin.isatty() and os.environ.get("SAALCO_ALLOW_NONTTY_APPROVE") != "1":
         raise SaalcoError("ERROR approve requires a TTY and must be run by a human.")
     who = git(root, "config", "user.name", check=False)
     if not who:
         raise SaalcoError("ERROR git config user.name is required for approval.")
+
+    # Validate all paths before writing
     for value in paths:
         path = (root / value).resolve() if not Path(value).is_absolute() else Path(value)
         if root not in path.parents:
             raise SaalcoError(f"ERROR {path}: path is outside the project.")
+        # Check that path is .md file under docs/features/
+        if not path.name.endswith(".md"):
+            raise SaalcoError(
+                f"ERROR {path}: only .md files may be approved. Pass paths like docs/features/F-001_name/30-detailed-design.md."
+            )
+        features_dir = root / "docs" / "features"
+        try:
+            path.relative_to(features_dir)
+        except ValueError:
+            raise SaalcoError(
+                f"ERROR {path}: only files under docs/features/ may be approved."
+            )
+
+    # All paths valid; now approve
+    for value in paths:
+        path = (root / value).resolve() if not Path(value).is_absolute() else Path(value)
         doc = parse_document(path)
         set_header(
             doc,

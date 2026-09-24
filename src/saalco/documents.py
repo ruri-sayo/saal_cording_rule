@@ -1,3 +1,21 @@
+"""Document parsing, serialization, and content hashing.
+
+Responsibilities:
+- Parse SAAL document format (YAML-like flat header + Markdown body).
+- Serialize documents preserving structure.
+- Compute SHA256 hashes for approval tracking.
+- Atomically write documents (temp file + rename).
+- Extract item definitions and metadata.
+
+Non-responsibilities:
+- Document validation (done by checks module).
+- Item content analysis (only structural extraction).
+
+External dependencies:
+- Filesystem: reads/writes document files.
+- tempfile: for atomic writes.
+"""
+
 from __future__ import annotations
 
 import hashlib
@@ -15,6 +33,14 @@ META_RE = re.compile(r"^([a-z_]+):\s*(.*?)\s*$")
 
 @dataclass
 class Document:
+    """In-memory representation of a SAAL document.
+
+    Attributes:
+        path: File path (not necessarily absolute).
+        header: Parsed header as flat dict of strings.
+        body: Markdown body text (post-header, including opening --).
+    """
+
     path: Path
     header: dict[str, str]
     body: str
@@ -22,6 +48,16 @@ class Document:
 
 @dataclass
 class Item:
+    """Extracted item (REQ, DD, UT, etc.) from a document.
+
+    Attributes:
+        id: Item identifier (REQ-0001, DD-0042, etc.).
+        kind: Item kind prefix (REQ, AD, DD, MD, UT, IT, ST, DEV).
+        title: Item title from heading.
+        path: Path of document containing this item.
+        meta: Extracted metadata lines (covers:, verify:, etc.) as dict.
+    """
+
     id: str
     kind: str
     title: str
@@ -30,6 +66,22 @@ class Item:
 
 
 def parse_document(path: Path) -> Document:
+    """Parse a SAAL document from file.
+
+    Document format: --- header lines --- body
+
+    Args:
+        path: Path to document file.
+
+    Returns:
+        Parsed Document with header dict and body string.
+
+    Raises:
+        SaalcoError: If file not found, missing delimiters, or invalid header format.
+
+    Side Effects:
+        Reads file from disk.
+    """
     try:
         text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
     except OSError as exc:
@@ -53,10 +105,31 @@ def parse_document(path: Path) -> Document:
 
 
 def serialize(doc: Document) -> str:
+    """Serialize a document to text.
+
+    Args:
+        doc: Document to serialize.
+
+    Returns:
+        Text representation: --- header --- body.
+    """
     return "---\n" + "".join(f"{k}: {v}\n" for k, v in doc.header.items()) + "---\n" + doc.body
 
 
 def atomic_write(doc: Document) -> None:
+    """Write a document to disk atomically.
+
+    Creates a temp file, writes, verifies by re-parsing, then renames to destination.
+
+    Args:
+        doc: Document to write.
+
+    Raises:
+        SaalcoError: If serialized document fails to re-parse (data corruption).
+
+    Side Effects:
+        Writes to temporary file, then replaces doc.path.
+    """
     text = serialize(doc)
     doc.path.parent.mkdir(parents=True, exist_ok=True)
     fd, name = tempfile.mkstemp(prefix=f".{doc.path.name}.", dir=doc.path.parent, text=True)
@@ -71,6 +144,17 @@ def atomic_write(doc: Document) -> None:
 
 
 def content_hash(doc: Document) -> str:
+    """Compute SHA256 hash of document content for approval tracking.
+
+    Excludes approval-related header keys: status, version, approved_by, approved_at, approved_hash.
+    Normalizes line endings to LF before hashing.
+
+    Args:
+        doc: Document to hash.
+
+    Returns:
+        40-character hex SHA256 hash.
+    """
     ignored = {"status", "version", "approved_by", "approved_at", "approved_hash"}
     header = "".join(f"{k}: {v}\n" for k, v in doc.header.items() if k not in ignored)
     payload = (header + "---\n" + doc.body).replace("\r\n", "\n").encode()
@@ -78,6 +162,16 @@ def content_hash(doc: Document) -> str:
 
 
 def items(doc: Document) -> list[Item]:
+    """Extract all items (REQ, DD, UT, etc.) from a document body.
+
+    Parses `### ID: Title` headings and following metadata lines (key: value).
+
+    Args:
+        doc: Document to extract from.
+
+    Returns:
+        List of Item objects; empty if no items found.
+    """
     matches = list(ITEM_RE.finditer(doc.body))
     result: list[Item] = []
     for index, match in enumerate(matches):
@@ -96,5 +190,14 @@ def items(doc: Document) -> list[Item]:
 
 
 def set_header(doc: Document, values: dict[str, str]) -> None:
+    """Update multiple header fields in a document.
+
+    Args:
+        doc: Document to modify.
+        values: Dict of key-value pairs to set in header.
+
+    Side Effects:
+        Modifies doc.header in place (does not write to disk).
+    """
     for key, value in values.items():
         doc.header[key] = value
