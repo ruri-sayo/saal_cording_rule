@@ -4,27 +4,11 @@ SAALCO（エージェント）は、以下のどの文書も承認していな�
 
 ## Design documents（`saalco approve` の対象）
 
-F-001 の設計文書5件は承認済みである（下の「Decided」を参照）。今回は、DEV の `status` を検査する新しい Feature F-002（Tier S）の文書の承認をお願いする。F-001 の承認済み文書を変更しないよう、別の Feature に分けた。
-
-| 順 | 介入点 | パス | 承認すべき理由 |
-|---|---|---|---|
-| 1 | H1 | `docs/features/F-002_dev-closed-status/10-requirements.md` | REQ-0005（DEV の `status` の値の検査、`closed` の DEV を許容に使わないこと、`closed_at`・`closed_condition` の必須化）が意図どおりかを確認する |
-| 2 | H3 | `docs/features/F-002_dev-closed-status/00-meta.md` | F-002 を Tier S とすることの妥当性を確認する（暫定解釈 I-7） |
-| 3 | H3 | `docs/features/F-002_dev-closed-status/30-detailed-design.md` | DD-0005 の設計判断と検証方法を確認する（Tier S のため MD は DD に統合） |
-
-```bash
-uv run saalco approve docs/features/F-002_dev-closed-status/10-requirements.md docs/features/F-002_dev-closed-status/00-meta.md docs/features/F-002_dev-closed-status/30-detailed-design.md
-```
-
-1〜3 と下の実装指示書 r4 が承認されたあと、実装を見ないエージェントに Specification-derived Test を書かせ、SAALCO を実装する。
+現在、承認待ちの文書は無い。
 
 ## Human decisions（`saalco approve` の対象外）
 
-| 対象 | 確認してほしいこと |
-|---|---|
-| `SAALCO-v1.0-implementation-instructions.md`（改訂版 r4） | §8.6 の改訂内容（DEV の `status` の値 `open` / `closed`、`closed` の DEV を許容に使わないこと、`closed_at`・`closed_condition`、未定義の値をERRORとすること）を承認するか |
-| `docs/input/SAALCO-v1.0-implementation-instructions.md` | 写しは r3 のままである。r4 に更新するか（前回と同じく、指示があればエージェントが更新する） |
-| `docs/features/F-001_saalco-v1/90-deviations.md` の DEV-0001 | 2026-09-25 の判断により閉じる。三浦さんが `status: closed` と `closed_at:` を記入する。`closed_condition:`（満たした終了条件）も人間の記入欄としたので、あわせて記入する（例：`6.8 = RTM の全項目が verified になった; 10.5 = 4.6 と 6.8 がともに終了した`）。エージェントはどの欄も記入しない |
+現在、判断待ちの事項は無い。
 
 ## Decided（2026-09-24 に人間が判断済み）
 
@@ -38,7 +22,9 @@ uv run saalco approve docs/features/F-002_dev-closed-status/10-requirements.md d
 - H1〜H3 の設計文書5件の承認（`saalco approve` により記録済み）
 - DEV-0001 のうち規則 4.6 の終了（承認の記録を受けて `rule:` から外した）
 - DEV-0001 を閉じること（2026-09-25。`status: closed` とする）
-- DEV の `status` に `closed` を追加する仕様改訂（r4）を行うこと（内容の承認は上の「Human decisions」）
+- 実装指示書 r4（§8.6 の DEV の `status` の値 `open` / `closed`、`closed_at`・`closed_condition`）の承認と、`docs/input/` の写しの r4 への差し替え（人間の指示により、エージェントが写しを更新した）
+- F-002 の設計文書3件の承認（`saalco approve` により記録済み）
+- DEV-0001 を閉じる記入（`status: closed`、`closed_at`、`closed_condition`）。2026-09-25 の人間の指示により、この回に限りエージェントが記入した
 
 ## Test specifications
 
