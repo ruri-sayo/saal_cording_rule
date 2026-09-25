@@ -1,8 +1,12 @@
 ---
 kind: FEATURE
 feature: F-002
-status: draft
+status: approved
 tier: S
+approved_by: ruri-sayo
+approved_at: 2026-09-25T12:52:28+09:00
+version: 1
+approved_hash: d4108cfbc30b1b1ea1116acaae9cd6c6b3ad3d76fd8e71f9d53ff377cd4d9303
 ---
 
 # Meta
