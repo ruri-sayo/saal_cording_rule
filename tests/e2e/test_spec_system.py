@@ -16,6 +16,8 @@ must not be worked around.
 
 from __future__ import annotations
 
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -59,12 +61,45 @@ def _approve_env() -> dict[str, str]:
     return {"SAALCO_ALLOW_NONTTY_APPROVE": "1"}
 
 
+def _require_uv() -> None:
+    if shutil.which("uv") is None:
+        pytest.skip("uv executable not available in this environment")
+
+
+def _make_lockable_and_lock(root: Path, project_name: str) -> None:
+    # REQ-0006 / DD-0006: `saalco evidence` refuses to run for a `language: python`
+    # project unless `uv.lock` exists, is tracked by git, and matches pyproject.toml.
+    # `saalco init` does not write a `[project]` table, so `uv lock` needs a minimal
+    # dependency-free one to resolve; this is test scaffolding, not product behavior.
+    pyproject = root / "pyproject.toml"
+    text = pyproject.read_text(encoding="utf-8") if pyproject.exists() else ""
+    if "[project]" not in text:
+        if text and not text.endswith("\n"):
+            text += "\n"
+        text += (
+            f'\n[project]\nname = "{project_name}"\nversion = "0.0.0"\nrequires-python = ">=3.11"\n'
+        )
+        pyproject.write_text(text, encoding="utf-8")
+
+    lock_env = dict(os.environ)
+    lock_env["UV_OFFLINE"] = "1"
+    subprocess.run(
+        ["uv", "lock"],
+        cwd=root,
+        env=lock_env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
 @pytest.mark.verifies("REQ-0001", spec="ST-0001")
 def test_req_0001_full_cli_lifecycle(tmp_path: Path) -> None:
     # ST-0001 steps 1-11: init -> new feature -> new req/ad/dd/ut/st -> sample impl+test ->
     # approve -> commit -> check -> evidence -> commit -> check --verification -> trace,
     # with the target REQ ending up `verified` in the RTM.
     root = tmp_path
+    _require_uv()
 
     result = _run(
         [
@@ -181,6 +216,10 @@ def test_req_0001_full_cli_lifecycle(tmp_path: Path) -> None:
     result = _run(["approve", str(dd_doc.relative_to(root))], root, env=_approve_env())
     assert result.returncode == 0, result.stderr
 
+    # REQ-0006 / DD-0006: satisfy the uv.lock precondition before the commit that
+    # precedes `saalco evidence`.
+    _make_lockable_and_lock(root, "st1-proj")
+
     _git(root, "add", "-A")
     _git(root, "commit", "-q", "-m", "ST-0001 fixture setup")
 
@@ -188,8 +227,10 @@ def test_req_0001_full_cli_lifecycle(tmp_path: Path) -> None:
     assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
 
     result = _run(["evidence"], root)
-    if result.returncode not in (0, 1):
-        pytest.skip(f"environment cannot run evidence gates here: {result.stderr}")
+    assert result.returncode in (0, 1), (
+        f"uv.lock precondition satisfied; evidence must run: "
+        f"stdout={result.stdout}\nstderr={result.stderr}"
+    )
 
     _git(root, "add", "-A")
     _git(root, "commit", "-q", "-m", "ST-0001 evidence")

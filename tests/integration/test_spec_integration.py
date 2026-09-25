@@ -15,6 +15,8 @@ than spawning subprocesses; process-level behavior is covered by tests/e2e.
 
 from __future__ import annotations
 
+import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -44,6 +46,38 @@ def _init_git(root: Path) -> None:
 def _commit_all(root: Path, message: str) -> None:
     _git(root, "add", "-A")
     _git(root, "commit", "-q", "-m", message)
+
+
+def _require_uv() -> None:
+    if shutil.which("uv") is None:
+        pytest.skip("uv executable not available in this environment")
+
+
+def _make_lockable_and_lock(root: Path, project_name: str) -> None:
+    # REQ-0006 / DD-0006: `saalco evidence` refuses to run for a `language: python`
+    # project unless `uv.lock` exists, is tracked by git, and matches pyproject.toml.
+    # `saalco init` does not write a `[project]` table, so `uv lock` needs a minimal
+    # dependency-free one to resolve; this is test scaffolding, not product behavior.
+    pyproject = root / "pyproject.toml"
+    text = pyproject.read_text(encoding="utf-8") if pyproject.exists() else ""
+    if "[project]" not in text:
+        if text and not text.endswith("\n"):
+            text += "\n"
+        text += (
+            f'\n[project]\nname = "{project_name}"\nversion = "0.0.0"\nrequires-python = ">=3.11"\n'
+        )
+        pyproject.write_text(text, encoding="utf-8")
+
+    lock_env = dict(os.environ)
+    lock_env["UV_OFFLINE"] = "1"
+    subprocess.run(
+        ["uv", "lock"],
+        cwd=root,
+        env=lock_env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
 
 @pytest.mark.verifies("AD-0001", spec="IT-0001")
@@ -219,14 +253,16 @@ def test_evidence_generates_manifest_and_summary_for_clean_tree(tmp_path: Path) 
     # IT-0001 "Evidence生成": クリーンな作業ツリーで evidence/<commit>/<run-id>/
     # manifest.json・summary.md と .saal/artifacts/<commit>/<run-id>/ が生成される。
     root = tmp_path
+    _require_uv()
     _init_git(root)
     commands.init_project(root, "evidence-clean-proj", "research", "python", [])
+
+    # REQ-0006 / DD-0006: satisfy the uv.lock precondition before the commit that
+    # precedes the `evidence.create` call.
+    _make_lockable_and_lock(root, "evidence-clean-proj")
     _commit_all(root, "init")
 
-    try:
-        manifest_path, overall = evidence.create(root)
-    except errors.SaalcoError as exc:
-        pytest.skip(f"environment cannot run evidence gates here: {exc}")
+    manifest_path, overall = evidence.create(root)
 
     assert manifest_path.name == "manifest.json"
     assert manifest_path.exists()
