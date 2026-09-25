@@ -138,10 +138,23 @@ def test_full_spec_19_lifecycle(e2e_root):
     )
 
     # `uv run coverage json` (invoked by saalco.evidence.create) syncs a throwaway venv for
-    # this ad-hoc pyproject.toml, writing .venv/ and uv.lock; those must never be tracked, or
-    # they'd show up as a non-bookkeeping diff and break current_manifest's "current" check.
+    # this ad-hoc pyproject.toml, writing .venv/; that must never be tracked, or it would show
+    # up as a non-bookkeeping diff and break current_manifest's "current" check. uv.lock, by
+    # contrast, must be tracked and current: `saalco evidence` now refuses to run (F-003,
+    # REQ-0006) without a committed, up-to-date uv.lock, and never creates or changes it
+    # itself (it runs `uv run --locked ...`), so the lockfile has to be produced here instead.
     gitignore = root / ".gitignore"
-    gitignore.write_text(gitignore.read_text() + ".venv/\nuv.lock\n")
+    gitignore.write_text(gitignore.read_text() + ".venv/\n")
+    lock_result = subprocess.run(
+        ["uv", "lock", "--offline"],
+        cwd=root,
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=TIMEOUT,
+        check=False,
+    )
+    assert lock_result.returncode == 0, lock_result.stdout + lock_result.stderr
 
     # --- new: feature (Tier M, so AD / IT documents are Tier-mandated).
     result = _saalco(root, "new", "feature", "Widget", "--tier", "M", "--slug", "widget", env=env)

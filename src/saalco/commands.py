@@ -60,7 +60,10 @@ def init_project(
 
     Side Effects:
         Creates directories, writes template files, modifies .gitignore,
-        initializes git repo if needed, runs `git init` (external subprocess).
+        initializes git repo if needed, runs `git init` (external subprocess). For
+        `language: python`, if `uv.lock` is not present at the root once setup is done,
+        prints a WARNING to stderr guiding the user to run `uv lock` and commit it before
+        `saalco evidence` (REQ-0006 §7); `saalco init` never runs `uv lock` itself.
     """
     if project_type not in {"research", "system"} or language not in {"python", "other"}:
         raise SaalcoError("ERROR --type and --language have invalid values.")
@@ -148,6 +151,11 @@ markers = [
   "impl_aware(id=None): implementation-aware test",
 ]"""
         conflicts.append(f"pyproject.toml (add these markers if absent):\n\n{marker_snippet}")
+    if language == "python" and not (root / "uv.lock").is_file():
+        print(
+            "WARNING uv.lock not found. Run `uv lock` and commit uv.lock before `saalco evidence`.",
+            file=sys.stderr,
+        )
     return conflicts
 
 

@@ -231,6 +231,42 @@ def write_coverage_json(
     return path.relative_to(root).as_posix()
 
 
+def write_uv_lock(root: Path) -> None:
+    """Create a minimal `pyproject.toml` (if absent) and a matching `uv.lock`.
+
+    Fixture projects declare no real dependencies, so `uv lock --offline` resolves without any
+    network access. This exists purely so tests can satisfy `saalco evidence`'s uv.lock
+    precondition (REQ-0006, DD-0006: a missing/untracked/stale `uv.lock` now stops Evidence
+    before it runs) without hand-writing a lockfile that could drift from `pyproject.toml`.
+
+    Side Effects:
+        Writes `root/pyproject.toml` (only if it does not already exist) and runs
+        `uv lock --offline` (subprocess), which writes `root/uv.lock`. Does not commit either
+        file — the caller commits alongside whatever else the test is setting up.
+    """
+    pyproject = root / "pyproject.toml"
+    if not pyproject.exists():
+        pyproject.write_text(
+            '[project]\nname = "fixture"\nversion = "0.1.0"\n'
+            'requires-python = ">=3.11"\ndependencies = []\n',
+            encoding="utf-8",
+        )
+    subprocess.run(
+        ["uv", "lock", "--offline"],
+        cwd=root,
+        env={**os.environ, "UV_OFFLINE": "1"},
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
+@pytest.fixture
+def write_uv_lock_fn():
+    """Factory fixture exposing `write_uv_lock` as a callable for tests."""
+    return write_uv_lock
+
+
 @pytest.fixture
 def saal_project(tmp_path):
     """Factory fixture: `saal_project("valid_project")` copies + git-inits a fixture."""

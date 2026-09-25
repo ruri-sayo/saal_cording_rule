@@ -1,15 +1,27 @@
 """Unit tests for saalco.evidence: diff coverage line mapping, JUnit nodeid mapping,
-parametrize aggregation, and current_manifest selection.
+parametrize aggregation, current_manifest selection, and the F-003 uv.lock precondition /
+`--locked` injection (REQ-0006, DD-0006).
 
 pytestmark impl_aware: exercises internal helpers (`_changed_lines`, `_junit_nodeid`,
-`_parse_junit`) and the current_manifest bookkeeping-only-diff contract directly.
+`_parse_junit`, `_check_lockfile`, `_inject_locked`) and the current_manifest
+bookkeeping-only-diff contract directly.
 """
 
+import subprocess
 from pathlib import Path
 
 import pytest
 
-from saalco.evidence import _changed_lines, _junit_nodeid, _parse_junit, current_manifest
+from saalco.errors import EnvironmentError as SaalcoEnvironmentError
+from saalco.errors import SaalcoError
+from saalco.evidence import (
+    _changed_lines,
+    _check_lockfile,
+    _inject_locked,
+    _junit_nodeid,
+    _parse_junit,
+    current_manifest,
+)
 
 pytestmark = pytest.mark.impl_aware
 
@@ -148,7 +160,7 @@ def test_current_manifest_ties_broken_by_latest_run_id(
 
 def test_create_runs_pytest_with_ctrace_coverage_core(saal_project, monkeypatch):
     """Regression: sys.monitoring drops all but the first test context per line (§13-14)."""
-    from conftest import commit_all
+    from conftest import commit_all, write_uv_lock
 
     from saalco import evidence
 
@@ -157,6 +169,9 @@ def test_create_runs_pytest_with_ctrace_coverage_core(saal_project, monkeypatch)
     project.write_text(
         project.read_text().replace("test.unit:\n", "test.unit: python -m pytest tests/unit\n")
     )
+    # `language: python` -> saalco.evidence.create now requires a committed, current uv.lock
+    # (F-003, REQ-0006) before it will run at all.
+    write_uv_lock(root)
     commit_all(root, "configure unit tests")
     seen: list[dict[str, str] | None] = []
 
@@ -170,3 +185,170 @@ def test_create_runs_pytest_with_ctrace_coverage_core(saal_project, monkeypatch)
     test_envs = [env for env in seen if env and "COVERAGE_FILE" in env]
     assert test_envs, "no pytest suite was run"
     assert all(env.get("COVERAGE_CORE") == "ctrace" for env in test_envs)
+
+
+# ---------------------------------------------------------------------------
+# _inject_locked (DD-0006 "--locked の付与")
+# ---------------------------------------------------------------------------
+
+
+def test_inject_locked_adds_flag_after_run():
+    assert _inject_locked("uv run pytest tests/unit") == "uv run --locked pytest tests/unit"
+
+
+def test_inject_locked_leaves_already_locked_command_unchanged():
+    assert (
+        _inject_locked("uv run --locked pytest tests/unit") == "uv run --locked pytest tests/unit"
+    )
+
+
+def test_inject_locked_leaves_frozen_command_unchanged():
+    assert (
+        _inject_locked("uv run --frozen pytest tests/unit") == "uv run --frozen pytest tests/unit"
+    )
+
+
+def test_inject_locked_leaves_non_uv_run_command_unchanged():
+    assert _inject_locked("python -m pytest tests/unit") == "python -m pytest tests/unit"
+    assert _inject_locked("ruff check .") == "ruff check ."
+
+
+def test_inject_locked_unparsable_command_returned_unchanged():
+    unparsable = "uv run 'unterminated"
+    assert _inject_locked(unparsable) == unparsable
+
+
+# ---------------------------------------------------------------------------
+# _check_lockfile (REQ-0006, DD-0006 precondition)
+# ---------------------------------------------------------------------------
+
+
+def test_check_lockfile_missing_raises_exit_2(saal_project):
+    root = saal_project("valid_project")
+    with pytest.raises(SaalcoError) as excinfo:
+        _check_lockfile(root)
+    assert excinfo.value.exit_code == 2
+    assert "not found" in str(excinfo.value)
+
+
+def test_check_lockfile_untracked_raises_exit_2(saal_project, write_uv_lock_fn):
+    root = saal_project("valid_project")
+    write_uv_lock_fn(root)  # writes uv.lock on disk but does not stage/commit it
+    with pytest.raises(SaalcoError) as excinfo:
+        _check_lockfile(root)
+    assert excinfo.value.exit_code == 2
+    assert "not tracked" in str(excinfo.value)
+
+
+def test_check_lockfile_outdated_raises_exit_2(saal_project, write_uv_lock_fn, commit_all_fn):
+    root = saal_project("valid_project")
+    write_uv_lock_fn(root)
+    commit_all_fn(root, "lock")
+    pyproject = root / "pyproject.toml"
+    pyproject.write_text(pyproject.read_text().replace("0.1.0", "0.2.0"))
+    commit_all_fn(root, "bump version without relocking")
+    with pytest.raises(SaalcoError) as excinfo:
+        _check_lockfile(root)
+    assert excinfo.value.exit_code == 2
+    assert "out of date" in str(excinfo.value)
+
+
+def test_check_lockfile_current_does_not_raise(saal_project, write_uv_lock_fn, commit_all_fn):
+    root = saal_project("valid_project")
+    write_uv_lock_fn(root)
+    commit_all_fn(root, "lock")
+    _check_lockfile(root)  # must not raise
+
+
+def test_check_lockfile_uv_missing_raises_exit_3(
+    saal_project, write_uv_lock_fn, commit_all_fn, monkeypatch
+):
+    root = saal_project("valid_project")
+    write_uv_lock_fn(root)
+    commit_all_fn(root, "lock")
+
+    from saalco import evidence
+
+    real_run = subprocess.run
+
+    def fake_run(args, *a, **kw):
+        if list(args)[:1] == ["uv"]:
+            raise OSError("uv: command not found")
+        return real_run(args, *a, **kw)
+
+    monkeypatch.setattr(evidence.subprocess, "run", fake_run)
+    with pytest.raises(SaalcoEnvironmentError) as excinfo:
+        _check_lockfile(root)
+    assert excinfo.value.exit_code == 3
+
+
+def test_check_lockfile_check_unexpected_exit_code_raises_exit_3(
+    saal_project, write_uv_lock_fn, commit_all_fn, monkeypatch
+):
+    root = saal_project("valid_project")
+    write_uv_lock_fn(root)
+    commit_all_fn(root, "lock")
+
+    from saalco import evidence
+
+    real_run = subprocess.run
+
+    def fake_run(args, *a, **kw):
+        if list(args)[:2] == ["uv", "lock"]:
+            return subprocess.CompletedProcess(args, 7, "weird failure\n", "")
+        return real_run(args, *a, **kw)
+
+    monkeypatch.setattr(evidence.subprocess, "run", fake_run)
+    with pytest.raises(SaalcoEnvironmentError) as excinfo:
+        _check_lockfile(root)
+    assert excinfo.value.exit_code == 3
+    assert "weird failure" in str(excinfo.value)
+
+
+def test_check_lockfile_skipped_for_language_other(saal_project, commit_all_fn, monkeypatch):
+    """REQ-0006 §8: `language: other` projects never go through the precondition at all."""
+    from saalco import evidence
+
+    root = saal_project("valid_project")
+    project = root / "docs/project.md"
+    project.write_text(project.read_text().replace("language: python", "language: other"))
+    commit_all_fn(root, "switch to language: other")
+
+    calls: list[Path] = []
+    monkeypatch.setattr(evidence, "_check_lockfile", lambda root_: calls.append(root_))
+    evidence.create(root)  # no uv.lock anywhere; must not raise
+    assert calls == []
+
+
+# ---------------------------------------------------------------------------
+# coverage export uses `--locked` (DD-0006)
+# ---------------------------------------------------------------------------
+
+
+def test_create_coverage_export_uses_locked_for_python(
+    saal_project, write_uv_lock_fn, commit_all_fn, monkeypatch
+):
+    from saalco import evidence
+
+    root = saal_project("valid_project")
+    write_uv_lock_fn(root)
+    commit_all_fn(root, "lock")
+
+    monkeypatch.setattr(
+        evidence,
+        "_run",
+        lambda root_, command, log, environment=None: (0, "PASS", "t0", "t1"),
+    )
+    seen_commands: list[list[str]] = []
+    real_run = subprocess.run
+
+    def fake_run(args, *a, **kw):
+        if isinstance(args, list) and args[:2] == ["uv", "run"]:
+            seen_commands.append(args)
+            return subprocess.CompletedProcess(args, 1, "", "no coverage tool")
+        return real_run(args, *a, **kw)
+
+    monkeypatch.setattr(evidence.subprocess, "run", fake_run)
+    evidence.create(root)
+    assert seen_commands, "coverage export was not invoked"
+    assert seen_commands[0][:3] == ["uv", "run", "--locked"]

@@ -118,6 +118,40 @@ def test_init_existing_pyproject_reports_snippet(tmp_path, monkeypatch, capsys):
     assert (tmp_path / "pyproject.toml").read_text() == "[project]\nname = 'x'\n"
 
 
+def test_init_python_without_uv_lock_warns_on_stderr(tmp_path, monkeypatch, capsys):
+    """REQ-0006 §7 / DD-0006: init guides toward `uv lock` but never runs it itself."""
+    monkeypatch.chdir(tmp_path)
+    code = main(
+        ["init", "--name", "x", "--type", "system", "--language", "python", "--non-interactive"]
+    )
+    captured = capsys.readouterr()
+    assert code == 0
+    assert "WARNING uv.lock not found" in captured.err
+    assert "uv lock" in captured.err
+    assert not (tmp_path / "uv.lock").exists()
+
+
+def test_init_python_with_existing_uv_lock_does_not_warn(tmp_path, monkeypatch, capsys):
+    (tmp_path / "uv.lock").write_text("version = 1\n")
+    monkeypatch.chdir(tmp_path)
+    code = main(
+        ["init", "--name", "x", "--type", "system", "--language", "python", "--non-interactive"]
+    )
+    captured = capsys.readouterr()
+    assert code == 0
+    assert "uv.lock" not in captured.err
+
+
+def test_init_language_other_never_warns_about_uv_lock(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    code = main(
+        ["init", "--name", "x", "--type", "system", "--language", "other", "--non-interactive"]
+    )
+    captured = capsys.readouterr()
+    assert code == 0
+    assert "uv.lock" not in captured.err
+
+
 # ---------------------------------------------------------------------------
 # new
 # ---------------------------------------------------------------------------

@@ -21,8 +21,9 @@ Non-responsibilities:
     - RTM computation (see `trace.py`); this module only invokes it and reads its own output
       indirectly through `current_manifest`.
 
-External dependencies: git, `uv run coverage json` (coverage export), and the project's
-configured `gate.*` / `test.*` commands (`docs/project.md`), all invoked as subprocesses.
+External dependencies: git, `uv` (`uv lock --check` for the lockfile precondition, `uv run
+coverage json` for the coverage export), and the project's configured `gate.*` / `test.*`
+commands (`docs/project.md`), all invoked as subprocesses.
 
 Filesystem effects: writes raw, untracked artifacts under
 `.saal/artifacts/<commit>/<run-id>/`; writes the tracked manifest and summary under
@@ -317,6 +318,80 @@ def _tool_version(command: str) -> str | None:
     return None
 
 
+def _check_lockfile(root: Path) -> None:
+    """Verify `uv.lock` exists, is tracked by git, and is up to date (REQ-0006, DD-0006).
+
+    Runs only for `language: python` projects, right after the working-tree-clean check and
+    before any Evidence output directory is created, so a failing precondition leaves
+    `evidence/` and `.saal/artifacts/` untouched. Never writes or changes `uv.lock` itself;
+    `uv lock --check` is read-only.
+
+    Raises:
+        SaalcoError: `uv.lock` is missing, not tracked by git, or `uv lock --check` reports it
+            is out of date (exit 1) — all exit 2 per DD-0006.
+        EnvironmentError: `uv` could not be run, or `uv lock --check` exited with an
+            unexpected code — exit 3 (the lockfile state could not be confirmed, so Evidence
+            must not be treated as PASS).
+
+    Side Effects:
+        Runs `git ls-files --error-unmatch uv.lock` and `uv lock --check` (both read-only).
+    """
+    guidance = "Run `uv lock`, commit uv.lock, then rerun `saalco evidence`."
+    lock_path = root / "uv.lock"
+    if not lock_path.is_file():
+        raise SaalcoError(
+            f"ERROR uv.lock: not found; Evidence requires a locked environment. {guidance}"
+        )
+    tracked = subprocess.run(
+        ["git", "ls-files", "--error-unmatch", "uv.lock"],
+        cwd=root,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if tracked.returncode:
+        raise SaalcoError(f"ERROR uv.lock: not tracked by git. {guidance}")
+    try:
+        proc = subprocess.run(
+            ["uv", "lock", "--check"], cwd=root, text=True, capture_output=True, check=False
+        )
+    except OSError as exc:
+        raise EnvironmentError(f"ERROR uv lock --check: could not run uv ({exc}).") from exc
+    if proc.returncode == 0:
+        return
+    if proc.returncode == 1:
+        raise SaalcoError(f"ERROR uv.lock: out of date; needs `uv lock`. {guidance}")
+    first_line = next(
+        (line for line in (proc.stdout + proc.stderr).splitlines() if line.strip()), ""
+    )
+    raise EnvironmentError(
+        f"ERROR uv lock --check: {first_line or 'exited with an unexpected error.'}"
+    )
+
+
+def _inject_locked(command: str) -> str:
+    """Insert `--locked` right after `run` in a `uv run ...` command (DD-0006).
+
+    Keeps Evidence from ever creating or changing `uv.lock` while running gates, tests, or the
+    coverage export: `uv run --locked` fails fast instead of silently rewriting the lockfile.
+    A command that is not `uv run ...` (first two shlex tokens `uv`, `run`), or that already
+    carries `--locked` or `--frozen`, is returned unchanged — a `--frozen` command is left
+    alone because `_check_lockfile` has already confirmed `uv.lock` is current.
+
+    Returns:
+        The command with `--locked` inserted, or the original command unchanged.
+    """
+    try:
+        tokens = shlex.split(command)
+    except ValueError:
+        return command
+    if len(tokens) < 2 or tokens[0] != "uv" or tokens[1] != "run":
+        return command
+    if "--locked" in tokens or "--frozen" in tokens:
+        return command
+    return shlex.join([tokens[0], tokens[1], "--locked", *tokens[2:]])
+
+
 def _dirty(root: Path) -> bool:
     """Return True if git shows tracked changes outside `evidence/` (spec §17 step check).
 
@@ -475,27 +550,39 @@ def create(root: Path) -> tuple[Path, str]:
     (spec §17). After each gate/test step, a change to the tracked tree outside `evidence/`
     fails that step (spec §17).
 
+    For `language: python`, right after the working-tree-clean check and before any output
+    directory is created, `_check_lockfile` verifies `uv.lock` exists, is tracked by git, and
+    is up to date (REQ-0006, DD-0006); any `gate.*`/`test.*`/coverage-export command that
+    starts with `uv run` then gets `--locked` inserted (`_inject_locked`), so this run can
+    never create or change `uv.lock`. `language: other` projects skip both.
+
     Returns:
         `(manifest_path, overall)`. `overall` is "PASS" only if every gate result is PASS or
         NOT_CONFIGURED (this includes the `test.*` gate entries), coverage status is PASS,
         and no step dirtied the tree; otherwise "FAIL".
 
     Raises:
-        EnvironmentError: if the working tree is not clean at the start.
+        EnvironmentError: the working tree is not clean at the start, or (`language: python`
+            only) the `uv.lock` state could not be confirmed (exit 3).
+        SaalcoError: (`language: python` only) `uv.lock` is missing, untracked, or out of date
+            (exit 2).
 
     Side Effects:
-        Runs git, the project's `gate.*`/`test.*` commands, `uv run coverage json`, and
-        `saalco check` in-process. Writes raw artifacts under
-        `.saal/artifacts/<target>/<run-id>/` (untracked); writes the manifest and summary
-        under `evidence/<target>/<run-id>/`; calls `trace.generate(root)`, which writes
-        `docs/trace/`.
+        Runs git, `uv lock --check` (python projects only, read-only), the project's
+        `gate.*`/`test.*` commands, `uv run coverage json`, and `saalco check` in-process.
+        Writes raw artifacts under `.saal/artifacts/<target>/<run-id>/` (untracked); writes
+        the manifest and summary under `evidence/<target>/<run-id>/`; calls
+        `trace.generate(root)`, which writes `docs/trace/`.
     """
     if git(root, "status", "--porcelain"):
         raise EnvironmentError(
             "ERROR working tree is dirty; commit all changes before `saalco evidence`."
         )
-    target = git(root, "rev-parse", "HEAD")
     cfg = config(root)
+    locked = cfg.get("language") == "python"
+    if locked:
+        _check_lockfile(root)
+    target = git(root, "rev-parse", "HEAD")
 
     base_run_id = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
     run_id = base_run_id
@@ -527,13 +614,14 @@ def create(root: Path) -> tuple[Path, str]:
                 }
             )
             continue
-        code, result, started, ended = _run(root, command, raw / f"gate-{name}.log")
+        executed_command = _inject_locked(command) if locked else command
+        code, result, started, ended = _run(root, executed_command, raw / f"gate-{name}.log")
         if result != "ERROR" and _dirty(root):
             result = "FAIL"
         gates.append(
             {
                 "name": name,
-                "command": command,
+                "command": executed_command,
                 "started_at": started,
                 "ended_at": ended,
                 "exit_code": code,
@@ -565,7 +653,7 @@ def create(root: Path) -> tuple[Path, str]:
         if not command:
             continue
         is_pytest = "pytest" in shlex.split(command)
-        executed_command = command
+        executed_command = _inject_locked(command) if locked else command
         if cfg.get("language") == "python" and is_pytest:
             append = " --cov-append" if pytest_run else ""
             executed_command += f" --cov=src --cov-context=test{append}"
@@ -617,8 +705,19 @@ def create(root: Path) -> tuple[Path, str]:
 
     coverage: dict[str, object] = _empty_coverage()
     coverage_path = raw / "coverage.json"
+    coverage_command = [
+        "uv",
+        "run",
+        "coverage",
+        "json",
+        "--show-contexts",
+        "-o",
+        str(coverage_path),
+    ]
+    if locked:
+        coverage_command.insert(2, "--locked")
     proc = subprocess.run(
-        ["uv", "run", "coverage", "json", "--show-contexts", "-o", str(coverage_path)],
+        coverage_command,
         cwd=root,
         text=True,
         capture_output=True,
