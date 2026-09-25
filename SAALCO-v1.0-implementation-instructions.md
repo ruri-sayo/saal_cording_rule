@@ -1,4 +1,4 @@
-# SAALCO v1.0 実装指示書（改訂版 r3）
+# SAALCO v1.0 実装指示書（改訂版 r4）
 
 ## 0. この指示書の目的と今回の方針
 
@@ -315,7 +315,28 @@ decided_by: miura
 decided_at: 2026-09-22
 ```
 
-- Coverage未達などの例外は、`status: open` かつ `rule` と `scope` が該当する DEV があれば許容する。この場合、ERRORではなくWARNINGとして表示する。
+- `status` の値は `open`（逸脱が続いている）または `closed`（終了条件を満たして閉じた）とする。それ以外の値と、`status` の欠落はERRORとする。
+- Coverage未達などの例外は、`status: open` かつ `rule` と `scope` が該当する DEV があれば許容する。この場合、ERRORではなくWARNINGとして表示する。`closed` の DEV は逸脱の許容に使わない（該当してもERRORのままとする）。
+- DEV を閉じるときは、`status: closed` とし、次の2つの欄を記入する。どちらかが欠けている `closed` の DEV はERRORとする。
+  - `closed_at`：閉じた日付
+  - `closed_condition`：満たした終了条件（`end_condition` に書いた条件のうちどれを満たしたか）
+- `status`・`closed_at`・`closed_condition` の記入は人間が行う。
+
+  ```markdown
+  ### DEV-0001: 移行中の未検証REQ
+
+  rule: 10.5
+  scope: F-001, src/saalco/ids/
+  status: closed
+  reason: 既存テストはimpl_awareのため
+  resolution: F-001のSpecification-derived Test追加で解消
+  end_condition: RTM の全項目が verified になった時点で終了
+  decided_by: miura
+  decided_at: 2026-09-22
+  closed_at: 2026-09-25
+  closed_condition: RTM の全項目が verified になった
+  ```
+
 - DEVの採番も `saalco new dev` で行う。
 
 ---
@@ -634,3 +655,4 @@ B〜D は `docs/development-open-questions.md` に記録し、安全側の最小
 |---|---|---|
 | r2 | — | 本改訂履歴の新設前の版（変更内容は記録されていない） |
 | r3 | 2026-09-24 | §9 に台帳行の状態（`active` / `retired`）を追加した。廃止したIDの扱い（文書との不一致検査からの除外、番号の再利用と参照の禁止）と、任意項目 `reason`・`superseded_by` を定めた。SAALCO 自身への適用で見つかった「行は消さない」と「不一致はERROR」の矛盾を解消するための改訂である |
+| r4 | 2026-09-25 | §8.6 に DEV の `status` の値（`open` / `closed`）を定めた。`closed` の DEV は逸脱の許容に使わないこと、閉じるときに `closed_at`（閉じた日付）と `closed_condition`（満たした終了条件）を記録すること、未定義の `status` 値をERRORとすることを追加した。DEV-0001 を閉じる際に、閉じた状態を表す値が定義されていないことが分かったための改訂である |

@@ -30,6 +30,10 @@
 | 試験仕様 | test specification | — | UT・IT・ST の総称 |
 | 逸脱記録 | deviation record | はい（`DEV`） | 規則を満たさずに進める場合の記録 |
 | 終了条件 | end condition | はい（`end_condition:`） | DEV を閉じる条件 |
+| 継続中（逸脱） | open | はい（`open`） | DEV の `status`。逸脱の許容に使う |
+| 終了（逸脱） | closed | はい（`closed`） | DEV の `status`。終了条件を満たして閉じた。逸脱の許容には使わない |
+| 終了日 | closed at | はい（`closed_at:`） | DEV を閉じた日付。人間が記入する |
+| 満たした終了条件 | closed condition | はい（`closed_condition:`） | DEV を閉じる根拠となった終了条件。人間が記入する |
 | 設計との差分レポート | implementation diff | `45-implementation-diff.md` | 設計に無いが実装したもの、設計にあるが未実装のもの |
 | 受け入れ判断 | acceptance | `70-acceptance.md` | 人間による Validation の記録 |
 | 成果 | outcome | `80-outcome.md` | |

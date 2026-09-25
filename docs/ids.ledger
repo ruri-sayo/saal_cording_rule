@@ -21,3 +21,8 @@ REQ-0004	F-001	2026-09-24T18:39:11+09:00	Generate document and AGENTS.md templat
 DD-0004	F-001	2026-09-24T18:39:11+09:00	Japanese-body template generation with fixed English machine-matched labels
 MD-0004	F-001	2026-09-24T18:39:11+09:00	Template text changes in the templates module
 UT-0004	F-001	2026-09-24T18:39:11+09:00	Template language unit test specification
+F-002	-	2026-09-25T11:37:26+09:00	DEV closed status
+REQ-0005	F-002	2026-09-25T11:37:26+09:00	Validate DEV status values and closed records
+DD-0005	F-002	2026-09-25T11:37:26+09:00	DEV status validation and closed-record checks
+UT-0005	F-002	2026-09-25T11:37:27+09:00	DEV status validation unit test specification
+ST-0004	F-002	2026-09-25T11:37:27+09:00	Closed DEV handling through the CLI
