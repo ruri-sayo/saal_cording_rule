@@ -26,3 +26,10 @@ REQ-0005	F-002	2026-09-25T11:37:26+09:00	Validate DEV status values and closed r
 DD-0005	F-002	2026-09-25T11:37:26+09:00	DEV status validation and closed-record checks
 UT-0005	F-002	2026-09-25T11:37:27+09:00	DEV status validation unit test specification
 ST-0004	F-002	2026-09-25T11:37:27+09:00	Closed DEV handling through the CLI
+F-003	-	2026-09-25T14:19:04+09:00	Locked uv runs during evidence
+REQ-0006	F-003	2026-09-25T14:19:04+09:00	Evidence requires an up-to-date uv.lock and never changes it
+AD-0002	F-003	2026-09-25T14:19:04+09:00	Lockfile precondition before evidence gates and tests
+DD-0006	F-003	2026-09-25T14:19:04+09:00	uv.lock precheck, --locked injection, and init guidance
+UT-0006	F-003	2026-09-25T14:19:04+09:00	Lockfile precheck and --locked injection unit test specification
+IT-0002	F-003	2026-09-25T14:19:04+09:00	Evidence runner and uv lockfile integration test specification
+ST-0005	F-003	2026-09-25T14:19:04+09:00	Evidence with missing, outdated, and current uv.lock through the CLI

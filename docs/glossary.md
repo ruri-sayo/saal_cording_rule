@@ -71,6 +71,9 @@
 | 証拠パッケージ | Evidence Package | `.saal/packages/` | Feature 単位の参照の集まり |
 | 作業ツリー | working tree | — | |
 | 総合結果 | overall | はい（`overall`） | manifest の総合判定 |
+| ロックファイル | lockfile | `uv.lock` | uv が依存関係の解決結果を固定するファイル。Git 管理する |
+| 更新が必要なロックファイル | outdated lockfile | — | `pyproject.toml` と整合していない `uv.lock`。RTM の「古い（stale）」とは別の語として使う |
+| 事前条件 | precondition | — | Evidence を取り始める前に満たすべき条件（作業ツリーがクリーン、`uv.lock` が最新など） |
 
 ## 承認と役割
 

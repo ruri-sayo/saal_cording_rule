@@ -22,7 +22,7 @@ SAALCO v1.0 は、実装指示書の暫定解釈に従って実装している�
 - A：`uv run` の中でツールが見つからない場合（例：プロジェクトの venv に pytest が無い）は、ERROR ではなく FAIL として記録する。どちらも PASS ではない。
 - A：`tests/fixtures/` 以下はサンプルデータであり、マーカーの走査と pytest の収集の対象から外す。
 - A：Python 3.12 以降で coverage.py が既定で使う `sysmon` 方式は、1行につき最初に実行したテストの測定コンテキストしか記録しない。これでは、未承認の設計に対応する実装の検査（§13-14）で verifies テストを見落とす。そのため `saalco evidence` はテストの実行時に `COVERAGE_CORE=ctrace` を指定する。
-- B（未対応）：`uv.lock` が無いプロジェクトで `saalco evidence` を実行すると、Evidence の途中で実行する `uv run`（テストと `coverage json`）が `uv.lock` を新しく作る。`uv.lock` は I-1 で差分として許される範囲（`evidence/`・`docs/trace/`・`docs/ids.ledger`）に入らないため、その Evidence は以後 current と扱われない。2026-09-25、F-002 の Specification-derived Test の作成中に見つかった（テスト側では、最初の commit の前に `uv lock` を実行して回避している）。対応方針（`uv run --frozen` を使う、`uv.lock` が無ければ事前に案内して止める、など）は人間が判断する。
+- B（対応中：F-003、設計の承認待ち）：`uv.lock` が無いプロジェクトで `saalco evidence` を実行すると、Evidence の途中で実行する `uv run`（テストと `coverage json`）が `uv.lock` を新しく作る。`uv.lock` は I-1 で差分として許される範囲（`evidence/`・`docs/trace/`・`docs/ids.ledger`）に入らないため、その Evidence は以後 current と扱われない。2026-09-25、F-002 の Specification-derived Test の作成中に見つかった（テスト側では、最初の commit の前に `uv lock` を実行して回避している）。2026-09-25、人間が B 案（`uv.lock` が無い・古い場合は止めて `uv lock` を案内し、`uv run --locked` を使う）を選んだ。
 
 ## Resolved
 
