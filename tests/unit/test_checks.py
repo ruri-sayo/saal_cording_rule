@@ -13,13 +13,24 @@ from saalco.documents import Item
 pytestmark = pytest.mark.impl_aware
 
 
-def _dev(rule: str, scope: str, status: str = "open") -> Item:
+def _dev(
+    rule: str,
+    scope: str,
+    status: str = "open",
+    closed_at: str | None = None,
+    closed_condition: str | None = None,
+) -> Item:
+    meta = {"rule": rule, "scope": scope, "status": status}
+    if closed_at is not None:
+        meta["closed_at"] = closed_at
+    if closed_condition is not None:
+        meta["closed_condition"] = closed_condition
     return Item(
         id="DEV-0001",
         kind="DEV",
         title="fixture",
         path=Path("docs/features/F-001_x/90-deviations.md"),
-        meta={"rule": rule, "scope": scope, "status": status},
+        meta=meta,
     )
 
 
@@ -73,6 +84,20 @@ def test_dev_downgrade_global_check_ignores_scope():
     """feature/item_id/file all None: any matching-rule open DEV applies regardless of scope."""
     dev = _dev("7.3", "totally-unrelated-scope")
     assert _dev_downgrade([dev], "7.3") is True
+
+
+def test_dev_closed_status_does_not_downgrade():
+    """A DEV with status: closed never downgrades, even if rule and scope match."""
+    dev = _dev(
+        "7.3", "F-001", status="closed", closed_at="2026-09-25", closed_condition="Condition met"
+    )
+    assert _dev_downgrade([dev], "7.3", feature="F-001") is False
+
+
+def test_dev_invalid_status_does_not_downgrade():
+    """A DEV with invalid status value never downgrades."""
+    dev = _dev("7.3", "F-001", status="resolved")
+    assert _dev_downgrade([dev], "7.3", feature="F-001") is False
 
 
 def test_tier_s_requires_common_files_only(saal_project):
@@ -286,3 +311,132 @@ def test_superseded_by_itself_retired_is_error(saal_project):
     report = run(root)
     assert not report.ok
     assert any("superseded_by REQ-0003 is itself retired" in e for e in report.errors)
+
+
+# --- DEV status validation (DD-0005 / UT-0005) ---------------------------------------------------
+
+
+def test_dev_missing_status_is_error(saal_project):
+    """A DEV without a `status` field is an ERROR."""
+    root = saal_project("valid_project")
+    dev_path = root / "docs/features/F-001_sample/90-deviations.md"
+    dev_path.write_text(
+        dev_path.read_text(encoding="utf-8") + "\n### DEV-0001: test missing status\n\n"
+        "rule: 7.3\nscope: F-001\nreason: test\nresolution: test\n"
+        "decided_by: human\ndecided_at: 2026-09-25\n",
+        encoding="utf-8",
+    )
+    report = run(root)
+    assert not report.ok
+    assert any("DEV-0001: invalid DEV status '<missing>'" in e for e in report.errors)
+
+
+def test_dev_invalid_status_is_error(saal_project):
+    """A DEV with status other than 'open' or 'closed' is an ERROR."""
+    root = saal_project("valid_project")
+    dev_path = root / "docs/features/F-001_sample/90-deviations.md"
+    dev_path.write_text(
+        dev_path.read_text(encoding="utf-8") + "\n### DEV-0001: test invalid status\n\n"
+        "rule: 7.3\nscope: F-001\nstatus: resolved\n"
+        "reason: test\nresolution: test\ndecided_by: human\ndecided_at: 2026-09-25\n",
+        encoding="utf-8",
+    )
+    report = run(root)
+    assert not report.ok
+    assert any("DEV-0001: invalid DEV status 'resolved'" in e for e in report.errors)
+
+
+def test_dev_open_status_no_error(saal_project):
+    """A DEV with status: open is valid even without closed_at/closed_condition."""
+    root = saal_project("valid_project")
+    dev_path = root / "docs/features/F-001_sample/90-deviations.md"
+    dev_path.write_text(
+        dev_path.read_text(encoding="utf-8") + "\n### DEV-0001: test open status\n\n"
+        "rule: 7.3\nscope: F-001\nstatus: open\n"
+        "reason: test\nresolution: test\ndecided_by: human\ndecided_at: 2026-09-25\n",
+        encoding="utf-8",
+    )
+    report = run(root)
+    # May have other errors (e.g., DEV-0001 not in ledger), but no status error.
+    assert not any("DEV-0001: invalid DEV status" in e for e in report.errors)
+
+
+def test_dev_closed_missing_closed_at_is_error(saal_project):
+    """A closed DEV without closed_at is an ERROR."""
+    root = saal_project("valid_project")
+    dev_path = root / "docs/features/F-001_sample/90-deviations.md"
+    dev_path.write_text(
+        dev_path.read_text(encoding="utf-8") + "\n### DEV-0001: test closed missing closed_at\n\n"
+        "rule: 7.3\nscope: F-001\nstatus: closed\nclosed_condition: condition met\n"
+        "reason: test\nresolution: test\ndecided_by: human\ndecided_at: 2026-09-25\n",
+        encoding="utf-8",
+    )
+    report = run(root)
+    assert not report.ok
+    assert any("DEV-0001: closed DEV is missing `closed_at`" in e for e in report.errors)
+
+
+def test_dev_closed_empty_closed_at_is_error(saal_project):
+    """A closed DEV with empty closed_at value is an ERROR."""
+    root = saal_project("valid_project")
+    dev_path = root / "docs/features/F-001_sample/90-deviations.md"
+    dev_path.write_text(
+        dev_path.read_text(encoding="utf-8") + "\n### DEV-0001: test closed empty closed_at\n\n"
+        "rule: 7.3\nscope: F-001\nstatus: closed\nclosed_at:  \n"
+        "closed_condition: condition met\nreason: test\nresolution: test\n"
+        "decided_by: human\ndecided_at: 2026-09-25\n",
+        encoding="utf-8",
+    )
+    report = run(root)
+    assert not report.ok
+    assert any("DEV-0001: closed DEV is missing `closed_at`" in e for e in report.errors)
+
+
+def test_dev_closed_missing_closed_condition_is_error(saal_project):
+    """A closed DEV without closed_condition is an ERROR."""
+    root = saal_project("valid_project")
+    dev_path = root / "docs/features/F-001_sample/90-deviations.md"
+    dev_path.write_text(
+        dev_path.read_text(encoding="utf-8")
+        + "\n### DEV-0001: test closed missing closed_condition\n\n"
+        "rule: 7.3\nscope: F-001\nstatus: closed\nclosed_at: 2026-09-25\n"
+        "reason: test\nresolution: test\ndecided_by: human\ndecided_at: 2026-09-25\n",
+        encoding="utf-8",
+    )
+    report = run(root)
+    assert not report.ok
+    assert any("DEV-0001: closed DEV is missing `closed_condition`" in e for e in report.errors)
+
+
+def test_dev_closed_empty_closed_condition_is_error(saal_project):
+    """A closed DEV with empty closed_condition value is an ERROR."""
+    root = saal_project("valid_project")
+    dev_path = root / "docs/features/F-001_sample/90-deviations.md"
+    dev_path.write_text(
+        dev_path.read_text(encoding="utf-8")
+        + "\n### DEV-0001: test closed empty closed_condition\n\n"
+        "rule: 7.3\nscope: F-001\nstatus: closed\nclosed_at: 2026-09-25\n"
+        "closed_condition:   \nreason: test\nresolution: test\n"
+        "decided_by: human\ndecided_at: 2026-09-25\n",
+        encoding="utf-8",
+    )
+    report = run(root)
+    assert not report.ok
+    assert any("DEV-0001: closed DEV is missing `closed_condition`" in e for e in report.errors)
+
+
+def test_dev_closed_complete_no_error(saal_project):
+    """A closed DEV with both closed_at and closed_condition is valid (no status error)."""
+    root = saal_project("valid_project")
+    dev_path = root / "docs/features/F-001_sample/90-deviations.md"
+    dev_path.write_text(
+        dev_path.read_text(encoding="utf-8") + "\n### DEV-0001: test closed complete\n\n"
+        "rule: 7.3\nscope: F-001\nstatus: closed\nclosed_at: 2026-09-25\n"
+        "closed_condition: condition met\nreason: test\nresolution: test\n"
+        "decided_by: human\ndecided_at: 2026-09-25\n",
+        encoding="utf-8",
+    )
+    report = run(root)
+    # May have other errors (e.g., DEV-0001 not in ledger), but no status/closed error.
+    assert not any("DEV-0001: invalid DEV status" in e for e in report.errors)
+    assert not any("DEV-0001: closed DEV is missing" in e for e in report.errors)

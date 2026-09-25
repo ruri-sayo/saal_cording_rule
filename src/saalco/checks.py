@@ -3,7 +3,7 @@
 Responsibilities:
     - Implement spec §12 static checks: document headers/Tier, ID ledger consistency,
       `covers:`/`verify:` reference validity and cycle-freedom, approval-hash consistency,
-      test-marker cross-references.
+      test-marker cross-references, DEV `status` validity and closed-record completeness (§8.6).
     - Implement spec §13 verification-only checks (added when `verification=True`):
       current-Evidence presence, `verifies` test PASS status, coverage status, the §13-14
       unapproved-design check (via coverage contexts), RTM `verified` status, DEV-recorded
@@ -15,6 +15,10 @@ Non-responsibilities:
       (`saalco.evidence.current_manifest`) and coverage JSON (`saalco.coverage_contexts`).
     - Does not write any files or mutate the working tree — `saalco check` is read-only
       (contract 4: it calls `trace.generate(root, write=False)`).
+
+DEV behavior (§8.6): `status` must be `open` or `closed`. Closed DEVs must have non-empty
+`closed_at` and `closed_condition`. Only `open` DEVs may downgrade ERRORs to WARNINGs; `closed`
+and invalid-status DEVs never downgrade.
 
 DEV downgrade rule numbers implemented (see `_dev_downgrade`): 4.6, 6.4, 6.8, 7.1, 7.3.
 """
@@ -200,6 +204,9 @@ def _dev_downgrade(
     no single owning item, e.g. overall coverage status or "coverage contexts unavailable"),
     any open DEV with a matching `rule` applies regardless of its `scope` — there is no
     specific candidate to check the scope against.
+
+    `closed` DEVs and DEVs with invalid `status` values never downgrade, even if they match
+    on rule and scope. Only DEVs with `status: open` may downgrade ERRORs to WARNINGs (§8.6).
 
     Used for rules: 4.6 (unapproved design / contexts unavailable), 6.4 (verifies test not
     PASS), 6.8 (RTM not-verified), 7.1 (gate FAIL/ERROR), 7.3 (coverage).
@@ -497,6 +504,28 @@ def run(root: Path, verification: bool = False) -> Report:
                         report.errors.append(
                             _retired_reference_message(where, token, retired_by_id)
                         )
+            # Validate DEV status and closed records (§8.6).
+            status = item.meta.get("status")
+            where = f"{item.path.relative_to(root)} {item.id}"
+            if status is None:
+                report.errors.append(
+                    f"{where}: invalid DEV status '<missing>'; set it to `open` or `closed`."
+                )
+            elif status not in {"open", "closed"}:
+                report.errors.append(
+                    f"{where}: invalid DEV status '{status}'; set it to `open` or `closed`."
+                )
+            elif status == "closed":
+                closed_at = item.meta.get("closed_at")
+                closed_condition = item.meta.get("closed_condition")
+                if not closed_at or not closed_at.strip():
+                    report.errors.append(
+                        f"{where}: closed DEV is missing `closed_at` or its value is empty; a human must fill this field."
+                    )
+                if not closed_condition or not closed_condition.strip():
+                    report.errors.append(
+                        f"{where}: closed DEV is missing `closed_condition` or its value is empty; a human must fill this field."
+                    )
             continue
         raw = item.meta.get("covers")
         if raw is None or (not raw and item.kind != "REQ"):
