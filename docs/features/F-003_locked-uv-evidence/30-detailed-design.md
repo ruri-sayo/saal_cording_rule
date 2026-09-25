@@ -1,7 +1,11 @@
 ---
 kind: DD
 feature: F-003
-status: draft
+status: approved
+approved_by: ruri-sayo
+approved_at: 2026-09-25T14:24:13+09:00
+version: 1
+approved_hash: b6c4a7640a3c67a9192caf12f2c0a18f07d109b7452d36b63b76d0b246beb756
 ---
 
 # Detailed Design

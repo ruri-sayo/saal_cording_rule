@@ -1,7 +1,11 @@
 ---
 kind: REQ
 feature: F-003
-status: draft
+status: approved
+approved_by: ruri-sayo
+approved_at: 2026-09-25T14:24:13+09:00
+version: 1
+approved_hash: 59763cda8ff43995ebf29f4d16fe2c5a2ae60cb8ca66b62a5ad90268be51788c
 ---
 
 # Requirements
