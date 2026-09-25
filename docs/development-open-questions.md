@@ -22,8 +22,8 @@ SAALCO v1.0 は、実装指示書の暫定解釈に従って実装している�
 - A：`uv run` の中でツールが見つからない場合（例：プロジェクトの venv に pytest が無い）は、ERROR ではなく FAIL として記録する。どちらも PASS ではない。
 - A：`tests/fixtures/` 以下はサンプルデータであり、マーカーの走査と pytest の収集の対象から外す。
 - A：Python 3.12 以降で coverage.py が既定で使う `sysmon` 方式は、1行につき最初に実行したテストの測定コンテキストしか記録しない。これでは、未承認の設計に対応する実装の検査（§13-14）で verifies テストを見落とす。そのため `saalco evidence` はテストの実行時に `COVERAGE_CORE=ctrace` を指定する。
-- B（対応中：F-003、設計の承認待ち）：`uv.lock` が無いプロジェクトで `saalco evidence` を実行すると、Evidence の途中で実行する `uv run`（テストと `coverage json`）が `uv.lock` を新しく作る。`uv.lock` は I-1 で差分として許される範囲（`evidence/`・`docs/trace/`・`docs/ids.ledger`）に入らないため、その Evidence は以後 current と扱われない。2026-09-25、F-002 の Specification-derived Test の作成中に見つかった（テスト側では、最初の commit の前に `uv lock` を実行して回避している）。2026-09-25、人間が B 案（`uv.lock` が無い・古い場合は止めて `uv lock` を案内し、`uv run --locked` を使う）を選んだ。
 
 ## Resolved
 
 - 解決済み（2026-09-24）/ D：§9 には「IDを廃止しても台帳の行は消さない」と「台帳と文書の不一致は ERROR」の両方が書かれており、IDを廃止する手段が無かった。実装指示書を改訂版 r3 に改め、台帳の行に `status`（`active` / `retired`）と任意項目 `reason`・`superseded_by` を追加して解決した。`retired` のIDは不一致検査から外し、番号の再利用と、廃止したIDへの参照の残存は ERROR とする。`status` の列が無い既存の行は `active` として従来どおり扱う。
+- 解決済み（2026-09-25）/ B：`uv.lock` が無いプロジェクトで `saalco evidence` を実行すると、Evidence の途中で実行する `uv run`（テストと `coverage json`）が `uv.lock` を新しく作る。`uv.lock` は I-1 で差分として許される範囲（`evidence/`・`docs/trace/`・`docs/ids.ledger`）に入らないため、その Evidence は以後 current と扱われない。2026-09-25、F-002 の Specification-derived Test の作成中に見つかった（テスト側では、最初の commit の前に `uv lock` を実行して回避している）。2026-09-25、人間が B 案（`uv.lock` が無い・古い場合は止めて `uv lock` を案内し、`uv run --locked` を使う）を選んだ。 F-003（REQ-0006・AD-0002・DD-0006）で対応した。`language: python` のプロジェクトでは、`uv.lock` が無い・Git 管理されていない・更新が必要な場合に、`saalco evidence` は Evidence を取らずに exit 2 で止まる。`uv run` で始まるコマンドは `--locked` を付けて実行する。`saalco init` は `uv.lock` が無ければ案内を出す。
