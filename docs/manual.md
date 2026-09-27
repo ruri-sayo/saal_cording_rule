@@ -553,6 +553,18 @@ Commit evidence/ and docs/trace/.
 git add evidence docs/trace && git commit -m "Record evidence"
 ```
 
+続けて RTM を生成し直し、commit する。`saalco evidence` が書き出す RTM は、Evidence がまだ commit されていない時点で作られるので、要件が `stale` になっている。Evidence を commit した後に `saalco trace` を実行すると、その Evidence をもとに `verified` の RTM になる。
+
+```bash
+saalco trace
+```
+
+```bash
+git add docs/trace && git commit -m "Sync RTM to evidence"
+```
+
+`docs/trace/` の変更だけなので、この commit で Evidence が current でなくなることはない。
+
 ### 4.10 検証まで含めて検査する
 
 ```bash
@@ -797,6 +809,16 @@ saalco evidence
 
 ```bash
 git add evidence docs/trace && git commit -m "Record evidence"
+```
+
+その後、RTM を生成し直して commit する。`saalco evidence` の途中で書き出す RTM は、Evidence がまだ commit されていない時点のものなので、要件が `stale` になっている。
+
+```bash
+saalco trace
+```
+
+```bash
+git add docs/trace && git commit -m "Sync RTM to evidence"
 ```
 
 Evidence は対象 commit そのものには入れられないので、後続の commit に入れる。対象 commit から HEAD までの変更が `evidence/`・`docs/trace/`・`docs/ids.ledger` だけなら、その Evidence は HEAD に対しても有効（current）とみなされる。コードや文書を1つでも変えたら、Evidence を取り直す。
@@ -1294,7 +1316,7 @@ saalco check [--verification] [--json]
 saalco trace [--json]
 ```
 
-`docs/trace/rtm.csv` と `rtm.md` を生成する。`--json` で行データを標準出力にも出す。RTM は `saalco evidence` のときにも生成される。
+`docs/trace/rtm.csv` と `rtm.md` を生成する。`--json` で行データを標準出力にも出す。RTM は `saalco evidence` のときにも生成されるが、その時点では Evidence がまだ commit されていないため `stale` になる。Evidence を commit した後に `saalco trace` を実行し直し、その結果を commit する（5.10）。
 
 `verify_status` の値：
 
@@ -1395,6 +1417,9 @@ E2E がサブプロセスで起動している場合は 8.4 の設定を入れ�
 - ゲートがファイルを書き換えていないか確認する（書き換えると FAIL になる）。
 - `uv run` には `--locked` が付くので、`uv.lock` が最新でないと失敗する。
 - ログは `.saal/artifacts/<commit>/<run-id>/` にある。
+
+**Evidence を commit したのに、`docs/trace/rtm.md` が `stale` のまま**
+`saalco evidence` が書き出した RTM は、Evidence が commit される前の時点のものである。`saalco trace` を実行し直して commit する（5.10）。
 
 **Evidence を取ったのに `stale` になる**
 Evidence の対象 commit のあと、`evidence/`・`docs/trace/`・`docs/ids.ledger` 以外のファイルを変更して commit した。Evidence を取り直す。

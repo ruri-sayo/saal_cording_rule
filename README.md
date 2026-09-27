@@ -61,7 +61,7 @@ saalco check
 1. 要件・設計を書き、人間が `saalco approve <path>...` で承認する
 2. 試験仕様を書き、仕様由来テスト（`@pytest.mark.verifies("DD-0001")`）と実装を書く
 3. `saalco check` を通し、全てを commit する
-4. `saalco evidence` を実行し、生成された `evidence/` と `docs/trace/` を commit する
+4. `saalco evidence` を実行し、生成された `evidence/` と `docs/trace/` を commit する。続けて `saalco trace` で RTM を生成し直し、`docs/trace/` を commit する
 5. `saalco check --verification` で、要件が `verified` になっていることを確認する
 6. 人間が `70-acceptance.md` に受け入れ判断を書く
 
