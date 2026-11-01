@@ -4,7 +4,7 @@ id: unassigned
 feature: -
 gate: -
 type: question
-status: open
+status: answered
 covers: -
 escalated_by: dependency
 blocks:
@@ -42,7 +42,7 @@ B。Coverage が低く出る原因は利用者には分かりにくく、最初�
 
 ## Answer
 
-<!-- 人間が記入する。エージェントは編集しない -->
+選択: B（2026-11-01。ファイルを編集できない環境だったため、人間がチャットの選択UIで回答し、人間の指示によりエージェントがここに転記した）
 
 ## References
 

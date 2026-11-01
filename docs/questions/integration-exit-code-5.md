@@ -4,7 +4,7 @@ id: unassigned
 feature: -
 gate: -
 type: question
-status: open
+status: answered
 covers: -
 escalated_by:
 blocks:
@@ -40,7 +40,7 @@ B。「テストが無い」を PASS とも FAIL とも偽らずに記録でき�
 
 ## Answer
 
-<!-- 人間が記入する。エージェントは編集しない -->
+選択: B（2026-11-01。ファイルを編集できない環境だったため、人間がチャットの選択UIで回答し、人間の指示によりエージェントがここに転記した）
 
 ## References
 

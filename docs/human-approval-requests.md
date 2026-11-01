@@ -8,26 +8,13 @@ SAALCO（エージェント）は、以下のどの文書も承認していな�
 
 ## Human decisions（`saalco approve` の対象外）
 
-### 1. 問いカードの紙上試行に答える
+### 1. 問いカードの紙上試行
 
-`docs/questions/` の3枚に答え、`docs/questions/README.md` の「Trial feedback」に評価を書いてほしい。答え方は README に書いた（`## Answer` 節に `選択: A` などを書く）。この結果で v1.2 実装指示書のカード書式（§5）を直してから、v1.2 の最初の Feature（`saalco context` と approve の完了表示）の H1 に進む。
+2026-11-01 に回答済み（下の Decided を参照）。
 
-| ファイル | 問い |
-|---|---|
-| `docs/questions/integration-exit-code-5.md` | 結合テストが1件も無いときの扱いをどうする？ |
-| `docs/questions/init-coverage-subprocess-patch.md` | `saalco init` に Coverage の subprocess 設定を入れる？ |
-| `docs/questions/evidence-exempt-user-docs.md` | README・マニュアルの変更で Evidence を取り直さずに済ませる？（判断者：三浦） |
+### 2. 規則 v1.2 と v1.2 実装指示書
 
-### 2. 規則 v1.2 と v1.2 実装指示書の内容を確認する
-
-- `docs/rules/SAAL-DEV-RULES.md`（v1.2）：第3.4項・第3.5項・第6.9項の追加、第3.2項・第4.3項・第5.2項・第6.4項・第6.5項・第11.5項・第13章・第15章の改訂。
-- `docs/input/SAALCO-v1.2-implementation-instructions.md`（r1）：人間の指示によりエージェントが起草した。特に、エージェントが決めた次の4点を確認してほしい。
-  - 細部の `verify: test` は `impl_aware` のテストでも満たせる（§8.3）。
-  - 格上げ対象の検出は、依存・公開パス・副作用モジュールの import・Tier の4分類を、直前の Evidence からの差分で見る（§9.1）。
-  - 選択 UI は標準ライブラリの `curses` で作り、依存を増やさない（§7.6）。
-  - SAALCO の版を規則に揃えて `1.2.0` とする（§10.2）。
-
-このリポジトリ自身は、移行するまで規則 v1.1 で運用する（`docs/project.md` は変えていない）。`saalco init` が配布するリポジトリ直下の `SAAL-DEV-RULES.md` も v1.1 のままである。
+2026-11-01、エージェントが決めた4点（§8.3、§9.1、§7.6、§10.2）について、人間から異議なしの回答を得た。
 
 段階1の Context budget は、`AGENTS.md` ではなく `CLAUDE.md` に置いた。`AGENTS.md` は `saalco init` の雛形と同じ内容に保つことが要件（REQ-0004）で、仕様由来テストが一致を検査しているためである。Codex など `CLAUDE.md` を読まないエージェントには、SAALCO v1.2 で雛形を更新する（v1.2 実装指示書 §10.1）まで届かない。
 
@@ -54,6 +41,8 @@ SAALCO（エージェント）は、以下のどの文書も承認していな�
 - 段階2の原仕様（v1.2 実装指示書）をエージェントが起草すること（2026-11-01）
 - `saalco approve`・`saalco review` の TTY 要求は誤操作の防止と割り切り、人間だけの操作の強制は求めないこと（2026-11-01）
 - 今回の改訂の版を v1.2 とし、main にマージすること（2026-11-01）
+- 紙上試行の3件（2026-11-01、チャットで回答。各カードに転記）：結合テストが無いときは `NO_TESTS` として記録し Tier と照合する（B）／`saalco init` が `patch = ["subprocess"]` を書き coverage の下限を 7.10 にする（B）／`README.md` と `docs/manual.md` の2ファイルを名前で Evidence の例外に加える（B）。実装はまだしていない
+- v1.2 実装指示書でエージェントが決めた4点に異議なし（2026-11-01）
 
 ## Test specifications
 
