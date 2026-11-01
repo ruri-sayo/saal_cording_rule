@@ -33,3 +33,14 @@ DD-0006	F-003	2026-09-25T14:19:04+09:00	uv.lock precheck, --locked injection, an
 UT-0006	F-003	2026-09-25T14:19:04+09:00	Lockfile precheck and --locked injection unit test specification
 IT-0002	F-003	2026-09-25T14:19:04+09:00	Evidence runner and uv lockfile integration test specification
 ST-0005	F-003	2026-09-25T14:19:04+09:00	Evidence with missing, outdated, and current uv.lock through the CLI
+F-004	-	2026-11-01T15:43:30+00:00	Session briefing and approval next-step hint
+REQ-0007	F-004	2026-11-01T15:43:30+00:00	approve prints a next-step hint for a new session
+REQ-0008	F-004	2026-11-01T15:43:30+00:00	saalco context prints a deterministic session briefing
+AD-0003	F-004	2026-11-01T15:43:30+00:00	Read-only briefing module beside the CLI
+DD-0007	F-004	2026-11-01T15:43:30+00:00	Phase inference
+DD-0008	F-004	2026-11-01T15:43:30+00:00	Briefing content, ordering, and size limit
+DD-0009	F-004	2026-11-01T15:43:31+00:00	approve completion output
+UT-0007	F-004	2026-11-01T15:43:31+00:00	Phase inference and briefing unit test specification
+UT-0008	F-004	2026-11-01T15:43:31+00:00	approve completion output unit test specification
+IT-0003	F-004	2026-11-01T15:43:31+00:00	Briefing over a real project tree integration test specification
+ST-0006	F-004	2026-11-01T15:43:31+00:00	Briefing and approve hint through the CLI

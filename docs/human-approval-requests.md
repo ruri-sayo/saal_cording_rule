@@ -4,7 +4,25 @@ SAALCO（エージェント）は、以下のどの文書も承認していな�
 
 ## Design documents（`saalco approve` の対象）
 
-現在、承認待ちの設計文書は無い（F-003 の4件は `saalco approve` により承認済み）。
+SAALCO v1.2 実装指示書 §3 の順1として、Feature F-004（`saalco context` と、`saalco approve` の完了表示）を作った。新しいモジュール `saalco.context` を加え、`saalco.commands` と `saalco.cli` を変えるため Tier M とした。問いカードの出力は、後の Feature で追加する。
+
+| 順 | 介入点 | パス | 承認すべき理由 |
+|---|---|---|---|
+| 1 | H1 | `docs/features/F-004_context-briefing/10-requirements.md` | REQ-0007（approve の完了表示）と REQ-0008（ブリーフィングの内容、200行の上限、ファイルを書かないこと、ERROR があっても exit 0）が意図どおりかを確認する |
+| 2 | H2 | `docs/features/F-004_context-briefing/20-architecture.md` | AD-0003（`saalco.context` を読み取り専用で置き、既存モジュールは変えずに呼ぶ）を確認する |
+| 3 | H3 | `docs/features/F-004_context-briefing/00-meta.md` | Tier M の妥当性を確認する |
+| 4 | H3 | `docs/features/F-004_context-briefing/30-detailed-design.md` | DD-0007（工程の推定）・DD-0008（出力の形式と上限）・DD-0009（approve の表示）を確認する |
+
+```bash
+uv run saalco approve docs/features/F-004_context-briefing/10-requirements.md docs/features/F-004_context-briefing/20-architecture.md docs/features/F-004_context-briefing/00-meta.md docs/features/F-004_context-briefing/30-detailed-design.md
+```
+
+設計上、指示書から変えた判断が2点ある。
+
+- 工程 `impl` を「紐付く仕様由来テストが無い」、`verification` を「RTM で verified でない」に分けた（DD-0007）。指示書の「テストが PASS していない」は、current な Evidence が無いと判定できないためである。
+- approve の `Next:` 行の工程は、文書の種類から決めず、承認後の状態から推定する（DD-0009）。
+
+`saalco approve` は TTY が要るため、クラウドのセッションでは実行できない。ローカルの端末で実行してほしい。設計の承認までは、仕様由来テストが無いため `saalco check` は ERROR 6件（F-004 の項目に verifies テストが無い）になる（F-003 と同じ）。
 
 ## Human decisions（`saalco approve` の対象外）
 
