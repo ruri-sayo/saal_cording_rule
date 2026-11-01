@@ -86,6 +86,30 @@
 | 人間の介入点 | human intervention point | はい（`H1`〜`H6`） | |
 | 移行 | migration | — | 既存プロジェクトを規則へ移行すること（規則 10.5） |
 
+## 問いカードとコンテキスト予算（規則 v1.2）
+
+| 日本語 | 英語 | 照合対象 | 説明 |
+|---|---|---|---|
+| 問いカード | question card | はい（`Q`） | 人間に判断を求める1件1ファイルの文書（規則 3.4） |
+| 問い | question | はい（`question`） | 人間が選択肢から選ぶ問いカードの種類 |
+| 確認 | confirm | はい（`confirm`） | AIが決めた内容に異議の有無を聞く問いカードの種類 |
+| 選択肢 | option | はい（`Options`） | 問いカードの節 |
+| 帰結 | consequence | はい（`Consequence:`） | 選択肢を選んだときに何が起きるか |
+| 推奨 | recommendation | はい（`Recommendation`） | AIの推奨。選択肢の後に置く |
+| 回答 | answer | はい（`answer`、`Answer`） | `saalco review` だけが書く |
+| 保留 | hold | はい（`held`、`hold`） | 回答の種類。止めている項目は実装しない |
+| 異議なし | no objection | はい（`no_objection`） | 確認への回答 |
+| 異議あり | objection | はい（`objection`） | 確認への回答 |
+| 取り下げ | withdrawn | はい（`withdrawn`） | 未回答の問いカードの状態 |
+| 回答hash | answer hash | はい（`answer_hash`） | 回答時の問いカードの SHA-256 |
+| 止めている項目 | blocked items | はい（`blocks:`） | 回答が出るまで実装しない項目 |
+| 判断項目 | decision item | はい（`decision:`） | 根拠の問いカードを持つ DD・MD の項目。H3 の承認対象 |
+| 細部 | detail item | — | 判断項目でない DD・MD の項目。保証はシステムが担う |
+| 格上げ対象 | escalation category | はい（`escalated_by:`） | `dependency` / `external_if` / `side_effect` / `tier`（規則 6.9） |
+| コンテキスト予算 | context budget | — | AIに読ませる量を抑える運用（規則 3.5） |
+| ブリーフィング | briefing | `saalco context` | 新しいセッションの開始時にAIが読む、ツールが組み立てた要約 |
+| 工程 | phase | はい（`--phase`） | `req` / `ad` / `dd` / `test-spec` / `impl` / `verification` / `acceptance` |
+
 ## Outcome の記録項目（`80-outcome.md`）
 
 規則 9.1／9.2 が定める記録項目のラベル。`saalco` はこれらの行を機械的に照合しない（照合対象は無し）ため、翻訳しても `checks`/`trace` の判定に影響しない。

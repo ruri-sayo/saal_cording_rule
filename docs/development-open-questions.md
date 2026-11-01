@@ -27,6 +27,8 @@ SAALCO v1.0 は、実装指示書の暫定解釈に従って実装している�
   - あわせて確認した結果：SAALCO 自身は、すでに `pyproject.toml` に `patch = ["subprocess"]` を設定している。それでも `saalco check --verification`（2026-09-27、current Evidence は commit `ef63d80`）は、`src/saalco/__init__.py`・`src/saalco/__main__.py`・`src/saalco/errors.py` の3件について「reached by no verifies test」の WARNING を出す。依頼時の「4件」は、同じ出力の WARNING 5件（この3件と、`gate.04.secret_scan`・`gate.05.dependency_audit` の `NOT_CONFIGURED` 2件）とは一致しない。Coverage の JSON を見ると、3ファイルとも全行が実行されているが、測定コンテキストは空文字（`''`）しか記録されていない。モジュールを import した時点で実行される行（`__init__.py` と `errors.py`）は、どのテストの測定コンテキストにも入らない。`__main__.py` は `python -m saalco` のサブプロセスでしか実行されず、pytest-cov のテストごとの測定コンテキストはサブプロセスに引き継がれない。したがって、この3件の WARNING は `patch = ["subprocess"]` では解消しない。
 - C（未決、2026-09-27 に記録、判断者：三浦）：`README.md` と `docs/manual.md` を、変更しても Evidence が current のまま扱われるパス（I-1 の例外：現在は `evidence/`・`docs/trace/`・`docs/ids.ledger`）に加えるかは決まっていない。加えない場合、利用者向けの文書を直すたびに Evidence を取り直す必要がある（2026-09-27 の README 日本語化とマニュアル追加で起きた）。加える場合、これらのパスは品質ゲートやテストの結果に影響しない一方で、例外の範囲が広がるほど「Evidence が HEAD のコードを検証した」という主張の範囲を個別に説明する必要が出てくる。個別のファイル名で指定するか、`docs/` 以下の規則管理外の文書をまとめて指定するかも選択肢である。判断は人間（三浦）が行う。
 
+- 2026-11-01：上の未決事項のうち3件（`tests/integration/` が空のときの終了コード5、`init` の `patch = ["subprocess"]`、README・マニュアルを Evidence の例外に加えるか）を、問いカードの紙上試行の対象にした（`docs/questions/`）。回答が出たら、ここを Resolved に移す。
+
 ## Resolved
 
 - 解決済み（2026-09-24）/ D：§9 には「IDを廃止しても台帳の行は消さない」と「台帳と文書の不一致は ERROR」の両方が書かれており、IDを廃止する手段が無かった。実装指示書を改訂版 r3 に改め、台帳の行に `status`（`active` / `retired`）と任意項目 `reason`・`superseded_by` を追加して解決した。`retired` のIDは不一致検査から外し、番号の再利用と、廃止したIDへの参照の残存は ERROR とする。`status` の列が無い既存の行は `active` として従来どおり扱う。

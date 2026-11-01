@@ -4,27 +4,32 @@ SAALCO（エージェント）は、以下のどの文書も承認していな�
 
 ## Design documents（`saalco approve` の対象）
 
-`uv.lock` 問題の対応（B 案）として、新しい Feature F-003 を作った。`saalco.evidence` と `saalco.commands`（init）の2つのモジュールにまたがるため Tier M とし、基本設計（AD）と結合テスト仕様（IT）も用意した。`--locked` と `--frozen` の実際の挙動の確認結果は DD-0006 に記録した。
-
-| 順 | 介入点 | パス | 承認すべき理由 |
-|---|---|---|---|
-| 1 | H1 | `docs/features/F-003_locked-uv-evidence/10-requirements.md` | REQ-0006（`uv.lock` が無い・Git 管理されていない・更新が必要な場合に exit 2 で止まること、`uv run --locked` の使用、init の案内）が意図どおりかを確認する |
-| 2 | H2 | `docs/features/F-003_locked-uv-evidence/20-architecture.md` | AD-0002（ゲートより前に事前条件の確認段階を置くこと、モジュール間の責務の分担）を確認する |
-| 3 | H3 | `docs/features/F-003_locked-uv-evidence/00-meta.md` | F-003 を Tier M とすることの妥当性を確認する |
-| 4 | H3 | `docs/features/F-003_locked-uv-evidence/30-detailed-design.md` | DD-0006（uv の挙動の確認結果、事前条件の順序と終了コード、`--locked` の付与規則、init の案内）を確認する |
-
-```bash
-uv run saalco approve docs/features/F-003_locked-uv-evidence/10-requirements.md docs/features/F-003_locked-uv-evidence/20-architecture.md docs/features/F-003_locked-uv-evidence/00-meta.md docs/features/F-003_locked-uv-evidence/30-detailed-design.md
-```
-
-設計上、確認してほしい判断が2点ある。
-
-- `--locked` を付けるのは、テストだけでなく、`uv run` で始まるゲートと Coverage の書き出しにも広げた。これらも `uv.lock` を書き換えうるためである。
-- すでに `--frozen` を含むコマンドは書き換えない。事前条件の確認で `uv.lock` が最新であることを確かめているためである。
+現在、承認待ちの設計文書は無い（F-003 の4件は `saalco approve` により承認済み）。
 
 ## Human decisions（`saalco approve` の対象外）
 
-現在、判断待ちの事項は無い。
+### 1. 問いカードの紙上試行に答える
+
+`docs/questions/` の3枚に答え、`docs/questions/README.md` の「Trial feedback」に評価を書いてほしい。答え方は README に書いた（`## Answer` 節に `選択: A` などを書く）。この結果で v1.2 実装指示書のカード書式（§5）を直してから、v1.2 の最初の Feature（`saalco context` と approve の完了表示）の H1 に進む。
+
+| ファイル | 問い |
+|---|---|
+| `docs/questions/integration-exit-code-5.md` | 結合テストが1件も無いときの扱いをどうする？ |
+| `docs/questions/init-coverage-subprocess-patch.md` | `saalco init` に Coverage の subprocess 設定を入れる？ |
+| `docs/questions/evidence-exempt-user-docs.md` | README・マニュアルの変更で Evidence を取り直さずに済ませる？（判断者：三浦） |
+
+### 2. 規則 v1.2 と v1.2 実装指示書の内容を確認する
+
+- `docs/rules/SAAL-DEV-RULES.md`（v1.2）：第3.4項・第3.5項・第6.9項の追加、第3.2項・第4.3項・第5.2項・第6.4項・第6.5項・第11.5項・第13章・第15章の改訂。
+- `docs/input/SAALCO-v1.2-implementation-instructions.md`（r1）：人間の指示によりエージェントが起草した。特に、エージェントが決めた次の4点を確認してほしい。
+  - 細部の `verify: test` は `impl_aware` のテストでも満たせる（§8.3）。
+  - 格上げ対象の検出は、依存・公開パス・副作用モジュールの import・Tier の4分類を、直前の Evidence からの差分で見る（§9.1）。
+  - 選択 UI は標準ライブラリの `curses` で作り、依存を増やさない（§7.6）。
+  - SAALCO の版を規則に揃えて `1.2.0` とする（§10.2）。
+
+このリポジトリ自身は、移行するまで規則 v1.1 で運用する（`docs/project.md` は変えていない）。`saalco init` が配布するリポジトリ直下の `SAAL-DEV-RULES.md` も v1.1 のままである。
+
+承認・回答の後は、新しいセッションで再開してほしい（規則 3.5）。
 
 ## Decided（2026-09-24 に人間が判断済み）
 
@@ -42,6 +47,11 @@ uv run saalco approve docs/features/F-003_locked-uv-evidence/10-requirements.md 
 - F-002 の設計文書3件の承認（`saalco approve` により記録済み）
 - DEV-0001 を閉じる記入（`status: closed`、`closed_at`、`closed_condition`）。2026-09-25 の人間の指示により、この回に限りエージェントが記入した
 - `uv.lock` 問題を B 案（`uv.lock` が無い・古い場合は止めて `uv lock` を案内し、`uv run --locked` を使う）で対応すること（2026-09-25）
+- SAALCO 改良計画（Notion、2026-11-01）の段階1（Context budget）を `AGENTS.md` に反映すること（2026-11-01）
+- 段階2のツールを作る前に、問いカードの紙上試行を行うこと（2026-11-01）
+- 段階2の原仕様（v1.2 実装指示書）をエージェントが起草すること（2026-11-01）
+- `saalco approve`・`saalco review` の TTY 要求は誤操作の防止と割り切り、人間だけの操作の強制は求めないこと（2026-11-01）
+- 今回の改訂の版を v1.2 とし、main にマージすること（2026-11-01）
 
 ## Test specifications
 
